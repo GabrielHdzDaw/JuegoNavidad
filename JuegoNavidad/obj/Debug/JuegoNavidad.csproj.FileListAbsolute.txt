@@ -5,3 +5,10 @@ C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csp
 C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csproj.CoreCompileInputs.cache
 C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.exe
 C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.pdb
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\bin\Debug\JuegoNavidad.exe.config
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\bin\Debug\JuegoNavidad.exe
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\bin\Debug\JuegoNavidad.pdb
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csproj.AssemblyReference.cache
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csproj.CoreCompileInputs.cache
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.exe
+C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.pdb

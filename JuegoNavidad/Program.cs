@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 
@@ -22,6 +21,56 @@ namespace JuegoNavidad
             DrawRectangle(x, y, width, height, character);  
         }
 
+        public static void DrawTransition()
+        {
+            string spaces = new string(' ', Console.WindowWidth);
+            string clear = new string('░', Console.WindowWidth);
+            string semiClear = new string('▒', Console.WindowWidth);
+            string semiSolid = new string('▓', Console.WindowWidth);
+            string solid = new string('█', Console.WindowWidth);
+            for (int i = 0; i < Console.WindowHeight; i++)
+            {
+                Console.SetCursorPosition(0, i);
+                Console.Write(clear);
+                if (i > 0)
+                {
+                    Console.SetCursorPosition(0, i - 1);
+                    Console.Write(semiClear);
+                    if (i > 1)
+                    {
+                        Console.SetCursorPosition(0, i - 2);
+                        Console.Write(semiSolid);
+                        if (i > 2)
+                        {
+                            Console.SetCursorPosition(0, i - 3);
+                            Console.Write(solid);
+                        }
+                        if (i > 4)
+                        {
+                            Console.SetCursorPosition(0, i - 4);
+                            Console.Write(semiSolid);
+                        }
+                        if (i > 5)
+                        {
+                            Console.SetCursorPosition(0, i - 5);
+                            Console.Write(semiClear);
+                        }
+                        if (i > 6)
+                        {
+                            Console.SetCursorPosition(0, i - 6);
+                            Console.Write(clear);
+                        }
+                        if (i > 7)
+                        {
+                            Console.SetCursorPosition(0, i - 7);
+                            Console.Write(spaces);
+                        }
+                    }
+                    Thread.Sleep(10);
+                }
+                Console.Clear();
+            }
+        }
         public static void DrawText(int x, int y, string text)
         {
            
@@ -36,11 +85,27 @@ namespace JuegoNavidad
             }
         }
 
-        public static void DrawMainMenu(string[] menuOptions)
+        public static void DrawMainMenu(string[] menuOptions, string title)
         {
+            string[] titleLines = title.Split('\n');
+            int titleY = Console.WindowHeight / 2 - menuOptions.Length - 2;
+
+            foreach (string line in titleLines)
+            {
+                int titleX = ((Console.WindowWidth - line.Length) / 2) - 5;
+                Console.SetCursorPosition(titleX, titleY++);
+                Console.Write(line);
+                Thread.Sleep(1);
+            }
+            
+
+            int menuStartY = (Console.WindowHeight / 2) + 5;
             for (int i = 0; i < menuOptions.Length; i++)
             {
-                DrawText((Console.WindowWidth / 2) - 18, Console.WindowHeight / 2 + i + 1, menuOptions[i]);
+                int optionX = Math.Max(0, (Console.WindowWidth / 2) - (menuOptions[i].Length / 2));
+                int optionY = menuStartY + i;
+
+                DrawText(optionX, optionY, menuOptions[i]);
             }
         }
         public static void DrawRectangle(int x, int y, int width, int height, char character)
@@ -308,8 +373,21 @@ namespace JuegoNavidad
         }
         static void Main()
         {
+            
+            // MaxWiwdth = 170 MaxHeight = 44
+            // maxWidth = Console.LargestWindowWidth;
+            // int maxHeight = Console.LargestWindowHeight;
+            //Console.WriteLine($"Largest console size: {maxWidth} x {maxHeight}");
 
-
+            string title = @"
+                      />
+         (           //------------------------------------------------------(
+        (*)OXOXOXOXO(*>                  --------                             \
+         (           \\--------------------------------------------------------)
+                      \>
+              ____ ____ _  _ ____ ____ ___    _  _ _ __ _ ____ ___  ____ _  _  
+              |___ ==== |--| |--| |--< |--'   |-:_ | | \| |__, |__> [__] |\/| 
+                                 ";
 
             string goblin = @"
      _____
@@ -337,11 +415,14 @@ _N\ |(`\ |___
      \_,_>-'
 ";
 
-            Console.SetWindowSize(240, 60);
-            Console.SetBufferSize(241, 61);
+            Console.SetWindowSize(170, 44);
+            Console.SetBufferSize(171, 45);
 
-
-            DrawMainMenu(mainMenuOptions);
+            Console.CursorVisible = false;
+            //DrawMainMenu(mainMenuOptions, title);
+            Thread.Sleep(2000);
+            DrawTransition();
+            Console.ReadLine();
             //DrawRectangle(0, 0, Console.WindowWidth - 2, Console.WindowHeight - 2, '▓');
             //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 4, goblin); 
             //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, dog);
