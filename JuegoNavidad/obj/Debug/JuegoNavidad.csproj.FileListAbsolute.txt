@@ -1,0 +1,7 @@
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\JuegoNavidad.exe.config
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\JuegoNavidad.exe
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\JuegoNavidad.pdb
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csproj.AssemblyReference.cache
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csproj.CoreCompileInputs.cache
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.exe
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.pdb
