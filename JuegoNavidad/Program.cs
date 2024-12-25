@@ -17,11 +17,32 @@ namespace JuegoNavidad
         const int POTION_HEALING_AMMOUNT = 50;
 
         // UI
-        public static void DrawUI()
+        public static void DrawUI(int x, int y, int width, int height, char character)
         {
-
+            DrawRectangle(x, y, width, height, character);  
         }
 
+        public static void DrawText(int x, int y, string text)
+        {
+           
+            if (x >= 0 && y >= 0 && x < Console.WindowWidth && y < Console.WindowHeight)
+            {
+                Console.SetCursorPosition(x, y);
+                Console.Write(text);
+            }
+            else
+            {
+                Console.WriteLine("Out of limits");
+            }
+        }
+
+        public static void DrawMainMenu(string[] menuOptions)
+        {
+            for (int i = 0; i < menuOptions.Length; i++)
+            {
+                DrawText((Console.WindowWidth / 2) - 18, Console.WindowHeight / 2 + i + 1, menuOptions[i]);
+            }
+        }
         public static void DrawRectangle(int x, int y, int width, int height, char character)
         {
             for (int i = 0; i <= height; i++)
@@ -34,11 +55,55 @@ namespace JuegoNavidad
                     
                     if (i == 0 || i == height || j == 0 || j == width)
                     {
-                        Console.Write(character);
+                        if (j == width || i == height)
+                        {
+                            Console.Write(character + "\n");
+                        }
+                        else
+                        {
+                            Console.Write(character);
+
+                        }
+                        
                     }
                 }
             }
         }
+        public static int GetDrawingWidth(string drawing)
+        {
+            string[] lines = drawing.Split('\n');
+            int maxWidth = 0;
+            foreach (string line in lines)
+            {
+                if (line.Length > maxWidth)
+                    maxWidth = line.Length;
+            }
+            return maxWidth;
+        }
+        public static void DrawEnemy(int x, int y, string enemy)
+        {
+            int enemyWidth = GetDrawingWidth(enemy); 
+            int startX = x - (enemyWidth / 2); 
+
+            string[] lines = enemy.Split('\n');
+            for (int i = 0; i < lines.Length; i++)
+            {
+                Console.SetCursorPosition(startX, y + i);
+
+                if (i == lines.Length - 1)
+                {
+                    Console.Write(lines[i] + "\n");
+                }
+                else
+                {
+                    Console.Write(lines[i]);
+                }
+            }
+        }
+
+        // Menus
+        string[] playerBattleOptions = { "Light (80% success, 10 damage)", "Medium (50% success, 20 damage)", "Heavy (30% success, 40 damage)", "Potion (recover 50 health points)" };
+        static string[] mainMenuOptions = { "New Game", "Instructions", "Exit" };
 
         // Battle
         public static void PlayerTurn(string playerChoice, string[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, string enemyName )
@@ -244,10 +309,42 @@ namespace JuegoNavidad
         static void Main()
         {
 
-            Console.SetWindowSize(240, 63);
-            Console.SetBufferSize(241, 64); 
 
-            DrawRectangle(0, 0, Console.WindowWidth - 5, Console.WindowHeight - 1, '▓');
+
+            string goblin = @"
+     _____
+ .-,;='';_),-.
+  \_\(),()/_/
+    (,___,)
+   ,-/`~`\-,___
+  / /).:.('--._)
+ {_[ (_,_)
+     | Y |
+    /  |  \
+   """" """"
+            ";
+            string dog = @"
+      __ __
+   .-',,^,,'.
+  / \(0)(0)/ \
+  )/( ,_""_,)\(
+  `  >-`~(   ' 
+_N\ |(`\ |___
+\' |/ \ \/_-,)
+ '.(  \`\_<
+    \ _\|
+     | |_\_
+     \_,_>-'
+";
+
+            Console.SetWindowSize(240, 60);
+            Console.SetBufferSize(241, 61);
+
+
+            DrawMainMenu(mainMenuOptions);
+            //DrawRectangle(0, 0, Console.WindowWidth - 2, Console.WindowHeight - 2, '▓');
+            //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 4, goblin); 
+            //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, dog);
 
             Random generator = new Random();
 
@@ -257,12 +354,10 @@ namespace JuegoNavidad
             string[] playerInventory = new string[5];
             playerInventory[0] = "potion";
 
-            string[] options = { "Light (80% success, 10 damage)", "Medium (50% success, 20 damage)", "Heavy (30% success, 40 damage)", "Potion (recover 50 health points)" };
-
             string playerName = "HieN";
             string enemyName = "Patatones";
 
-            Battle(generator, ref playerHealth, ref computerHealth, playerInventory, options, playerName, enemyName);
+            //Battle(generator, ref playerHealth, ref computerHealth, playerInventory, options, playerName, enemyName);
         }
     }
 
