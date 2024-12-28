@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace JuegoNavidad
 {
-    internal class CSReign
+    internal class CSKingdom
     {
         const int LIGHT_ATTACK_DAMAGE = 10;
         const int MEDIUM_ATTACK_DAMAGE = 20;
@@ -16,68 +16,125 @@ namespace JuegoNavidad
         const int POTION_HEALING_AMMOUNT = 50;
 
         // UI
-        public static void DrawUI(int x, int y, int width, int height, char character)
+        public static int Select(string[] options)
         {
-            DrawRectangle(x, y, width, height, character);  
-        }
-
-        public static void DrawTransition()
-        {
-            string spaces = new string(' ', Console.WindowWidth);
-            string clear = new string('░', Console.WindowWidth);
-            string semiClear = new string('▒', Console.WindowWidth);
-            string semiSolid = new string('▓', Console.WindowWidth);
-            string solid = new string('█', Console.WindowWidth);
-            for (int i = 0; i < Console.WindowHeight; i++)
+            Console.CursorVisible = false;
+            int menuStartY = (Console.WindowHeight / 2) + 7;
+            int selectedOption = 0;
+            while (true)
             {
-                Console.SetCursorPosition(0, i);
-                Console.Write(clear);
-                if (i > 0)
+                
+                for (int i = 0; i < options.Length; i++)
                 {
-                    Console.SetCursorPosition(0, i - 1);
-                    Console.Write(semiClear);
-                    if (i > 1)
+                    int optionX = Math.Max(0, (Console.WindowWidth / 2) - (options[i].Length / 2));
+                    int optionY = menuStartY + i;
+                    if (i == selectedOption)
                     {
-                        Console.SetCursorPosition(0, i - 2);
-                        Console.Write(semiSolid);
-                        if (i > 2)
-                        {
-                            Console.SetCursorPosition(0, i - 3);
-                            Console.Write(solid);
-                        }
-                        if (i > 4)
-                        {
-                            Console.SetCursorPosition(0, i - 4);
-                            Console.Write(semiSolid);
-                        }
-                        if (i > 5)
-                        {
-                            Console.SetCursorPosition(0, i - 5);
-                            Console.Write(semiClear);
-                        }
-                        if (i > 6)
-                        {
-                            Console.SetCursorPosition(0, i - 6);
-                            Console.Write(clear);
-                        }
-                        if (i > 7)
-                        {
-                            Console.SetCursorPosition(0, i - 7);
-                            Console.Write(spaces);
-                        }
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        DrawText(optionX, optionY, 0, $"> {options[i]}");
+                        Console.ResetColor();
                     }
-                    Thread.Sleep(10);
+                    else
+                    {
+                        DrawText(optionX, optionY, 0, $"  {options[i]}");
+                    }
+                    
+                    Thread.Sleep(100);
                 }
-                Console.Clear();
+
+                var key = Console.ReadKey(true); 
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    selectedOption = (selectedOption > 0) ? selectedOption - 1 : options.Length - 1;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    selectedOption = (selectedOption < options.Length - 1) ? selectedOption + 1 : 0;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    return selectedOption;
+                }
             }
         }
-        public static void DrawText(int x, int y, string text)
+        public static void DrawUI(int x, int y, int width, int height, char character)
         {
-           
+            DrawRectangle(x, y, width, height, character);
+        }
+
+        public static void DrawTransition1()
+        {
+            string[] patterns = 
+            {
+                new string(' ', Console.WindowWidth),
+                new string('░', Console.WindowWidth),
+                new string('░', Console.WindowWidth),
+
+                new string('▒', Console.WindowWidth),
+                new string('▒', Console.WindowWidth),
+
+                new string('▓', Console.WindowWidth),
+                new string('▓', Console.WindowWidth),
+
+                new string('█', Console.WindowWidth)
+            };
+
+            string whiteLine = new string('█', Console.WindowWidth);
+            int whiteLines = Console.WindowHeight - 5;
+
+            for (int i = 0; i < Console.WindowHeight + (patterns.Length * 2) + whiteLines; i++)
+            {
+                Console.CursorVisible = false;
+                for (int j = 0; j < patterns.Length; j++)
+                {
+                    int layerPos = i - j;
+                    if (layerPos >= 0 && layerPos < Console.WindowHeight)
+                    {
+                        Console.SetCursorPosition(0, layerPos);
+                        Console.Write(patterns[j]);
+                    }
+                }
+
+                for (int w = 0; w < whiteLines; w++)
+                {
+                    int whitePos = i - patterns.Length - w;
+                    if (whitePos >= 0 && whitePos < Console.WindowHeight)
+                    {
+                        Console.SetCursorPosition(0, whitePos);
+                        Console.Write(whiteLine);
+                    }
+                }
+
+                for (int j = 0; j < patterns.Length; j++)
+                {
+                    int layerPos = i - patterns.Length - whiteLines - j;
+                    if (layerPos >= 0 && layerPos < Console.WindowHeight)
+                    {
+                        Console.SetCursorPosition(0, layerPos);
+                        Console.Write(patterns[patterns.Length - 1 - j]);
+                    }
+                }
+               
+                Thread.Sleep(1);
+                if (i > Console.WindowHeight / 2)
+                {
+                    Console.Clear(); //Clean residual lines
+                }
+            }
+            Console.Clear();
+        }
+
+        public static void DrawText(int x, int y, int timeBetweenKeyStrokes, string text)
+        {
+            Console.CursorVisible = false;
             if (x >= 0 && y >= 0 && x < Console.WindowWidth && y < Console.WindowHeight)
             {
                 Console.SetCursorPosition(x, y);
-                Console.Write(text);
+                for (int i = 0; i < text.Length; i++)
+                {
+                    Console.Write(text[i]);
+                    Thread.Sleep(timeBetweenKeyStrokes);
+                }
             }
             else
             {
@@ -85,28 +142,33 @@ namespace JuegoNavidad
             }
         }
 
-        public static void DrawMainMenu(string[] menuOptions, string title)
+        public static int DrawMainMenu(string[] menuOptions, string title)
         {
+            Console.CursorVisible = false;
             string[] titleLines = title.Split('\n');
-            int titleY = Console.WindowHeight / 2 - menuOptions.Length - 2;
+            int titleY = Console.WindowHeight / 2 - menuOptions.Length - 15;
 
-            foreach (string line in titleLines)
+            for (int i = 0; i < titleLines.Length; i++)
             {
+                string line = titleLines[i];
                 int titleX = ((Console.WindowWidth - line.Length) / 2) - 5;
                 Console.SetCursorPosition(titleX, titleY++);
                 Console.Write(line);
-                Thread.Sleep(1);
+                
+                if (i == titleLines.Length - 4)
+                {
+                    Thread.Sleep(2000);
+                }
+                else
+                {
+                    Thread.Sleep(80);
+                }
             }
-            
 
-            int menuStartY = (Console.WindowHeight / 2) + 5;
-            for (int i = 0; i < menuOptions.Length; i++)
-            {
-                int optionX = Math.Max(0, (Console.WindowWidth / 2) - (menuOptions[i].Length / 2));
-                int optionY = menuStartY + i;
+            Thread.Sleep(500);
 
-                DrawText(optionX, optionY, menuOptions[i]);
-            }
+            int selectedOption = Select(menuOptions);
+            return selectedOption;
         }
         public static void DrawRectangle(int x, int y, int width, int height, char character)
         {
@@ -114,10 +176,10 @@ namespace JuegoNavidad
             {
                 for (int j = 0; j <= width; j++)
                 {
-                    
+
                     Console.SetCursorPosition(x + j, y + i);
 
-                    
+
                     if (i == 0 || i == height || j == 0 || j == width)
                     {
                         if (j == width || i == height)
@@ -129,11 +191,12 @@ namespace JuegoNavidad
                             Console.Write(character);
 
                         }
-                        
+
                     }
                 }
             }
         }
+
         public static int GetDrawingWidth(string drawing)
         {
             string[] lines = drawing.Split('\n');
@@ -145,10 +208,11 @@ namespace JuegoNavidad
             }
             return maxWidth;
         }
+
         public static void DrawEnemy(int x, int y, string enemy)
         {
-            int enemyWidth = GetDrawingWidth(enemy); 
-            int startX = x - (enemyWidth / 2); 
+            int enemyWidth = GetDrawingWidth(enemy);
+            int startX = x - (enemyWidth / 2);
 
             string[] lines = enemy.Split('\n');
             for (int i = 0; i < lines.Length; i++)
@@ -166,12 +230,8 @@ namespace JuegoNavidad
             }
         }
 
-        // Menus
-        string[] playerBattleOptions = { "Light (80% success, 10 damage)", "Medium (50% success, 20 damage)", "Heavy (30% success, 40 damage)", "Potion (recover 50 health points)" };
-        static string[] mainMenuOptions = { "New Game", "Instructions", "Exit" };
-
         // Battle
-        public static void PlayerTurn(string playerChoice, string[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, string enemyName )
+        public static void PlayerTurn(string playerChoice, string[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, string enemyName)
         {
             bool success = false;
             int chosenAttackDamage = 0;
@@ -214,12 +274,13 @@ namespace JuegoNavidad
                                 Console.WriteLine($"You healed {POTION_HEALING_AMMOUNT}");
                                 break;
                         }
-                    } else
+                    }
+                    else
                     {
                         Console.Write($"You don't have {chosenObject}");
                     }
                     break;
-                    
+
             }
 
             if (success)
@@ -231,6 +292,7 @@ namespace JuegoNavidad
                 Console.WriteLine("\nAttack missed!\n");
             }
         }
+
         public static void ComputerTurn(Random generator, ref int playerHealth)
         {
             int chosenAttackDamage = 0;
@@ -283,6 +345,7 @@ namespace JuegoNavidad
         {
             return computerHealth <= 0;
         }
+
         public static bool ComputerWon(int playerHealth)
         {
             return playerHealth <= 0;
@@ -292,6 +355,7 @@ namespace JuegoNavidad
         {
             Console.Write(win ? victoryMessage : defeatMessage);
         }
+
         public static void CorrectHealth(ref int playerHealth, ref int computerHealth)
         {
             playerHealth = Math.Max(playerHealth, 0);
@@ -307,7 +371,7 @@ namespace JuegoNavidad
         {
             bool win = false;
             bool defeat = false;
-            
+
             string playerChoice;
             while (!win && !defeat)
             {
@@ -371,20 +435,37 @@ namespace JuegoNavidad
             } while (!validChoice);
             return playerChoice;
         }
+
+        // Menus
+        string[] playerBattleOptions = { "Light (80% success, 10 damage)", "Medium (50% success, 20 damage)", "Heavy (30% success, 40 damage)", "Potion (recover 50 health points)" };
+        static string[] mainMenuOptions = { "New Game", "Instructions", "Exit" };
+
         static void Main()
         {
-            
+
             // MaxWiwdth = 170 MaxHeight = 44
             // maxWidth = Console.LargestWindowWidth;
             // int maxHeight = Console.LargestWindowHeight;
             //Console.WriteLine($"Largest console size: {maxWidth} x {maxHeight}");
 
             string title = @"
-                      />
-         (           //------------------------------------------------------(
-        (*)OXOXOXOXO(*>                  --------                             \
-         (           \\--------------------------------------------------------)
-                      \>
+                                          .-++=:                              
+                                        :%@@@@@%-                            
+                                       .#@@@@@@@@-                           
+                                        =#@@@@@@%.                           
+                                         +%@@@@+.                            
+                                          .....                              
+                                                         
+                                          -%%%%:..                           
+                                         #@@@@@@%+                           
+                                        .%@@@@@@@*.                          
+                                         =@@@@@@@#.                          
+                                         .:*@@@@@=.                          
+                                           ..=@@#.                           
+                                            .+@%.                            
+                                          .-*@+.                             
+                                         .:-=..                              
+                                         .-.                                 
               ____ ____ _  _ ____ ____ ___    _  _ _ __ _ ____ ___  ____ _  _  
               |___ ==== |--| |--| |--< |--'   |-:_ | | \| |__, |__> [__] |\/| 
                                  ";
@@ -415,13 +496,19 @@ _N\ |(`\ |___
      \_,_>-'
 ";
 
+            
             Console.SetWindowSize(170, 44);
             Console.SetBufferSize(171, 45);
+            
+            DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, goblin);
+            DrawText((Console.WindowWidth / 2) + 5, (Console.WindowHeight / 2) + 5, 0, "Press F11, I'm telling ya!");
+            Thread.Sleep(5000);
+            Console.Clear();
+            Thread.Sleep(1000);
 
-            Console.CursorVisible = false;
-            //DrawMainMenu(mainMenuOptions, title);
-            Thread.Sleep(2000);
-            DrawTransition();
+            DrawMainMenu(mainMenuOptions, title);
+            
+            
             Console.ReadLine();
             //DrawRectangle(0, 0, Console.WindowWidth - 2, Console.WindowHeight - 2, '▓');
             //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 4, goblin); 
