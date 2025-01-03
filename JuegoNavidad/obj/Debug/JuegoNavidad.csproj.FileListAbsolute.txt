@@ -12,3 +12,16 @@ C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\De
 C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.csproj.CoreCompileInputs.cache
 C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.exe
 C:\Users\Estudiant\Documents\Visual Studio 2022\JuegoNavidad\JuegoNavidad\obj\Debug\JuegoNavidad.pdb
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\barRebound.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\brickRebound.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\gameOver.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\menuAccept.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\menuSelect.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\title2.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\title1.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\textClickSound.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\potionSound.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\magicHit.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\meleeHit2.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\meleeHit.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\missHit.wav

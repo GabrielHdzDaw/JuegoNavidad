@@ -1,5 +1,5 @@
 ﻿using System;
-using System.CodeDom;
+using System.Media;
 using System.Text;
 using System.Threading;
 
@@ -8,6 +8,34 @@ namespace JuegoNavidad
 {
     internal class CSKingdom
     {
+        // Arkanoid vars
+        static SoundPlayer barReboundSound = new SoundPlayer(@"Sounds\barRebound.wav");
+        static SoundPlayer brickReboundSound = new SoundPlayer(@"Sounds\brickRebound.wav");
+        static SoundPlayer gameOverSound = new SoundPlayer(@"Sounds\gameOver.wav");
+        static SoundPlayer menuSelectSound = new SoundPlayer(@"Sounds\menuSelect.wav");
+        static SoundPlayer menuAcceptSound = new SoundPlayer(@"Sounds\menuAccept.wav");
+        static SoundPlayer textClickSound = new SoundPlayer(@"Sounds\textClickSound.wav");
+        static SoundPlayer magicHitSound = new SoundPlayer(@"Sounds\magicHit.wav");
+        static SoundPlayer meleeHitSound = new SoundPlayer(@"Sounds\meleeHit.wav");
+        static SoundPlayer meleeHitSound2 = new SoundPlayer(@"Sounds\meleeHit2.wav");
+        static SoundPlayer missHitSound = new SoundPlayer(@"Sounds\missHit.wav");
+        static SoundPlayer potionSound = new SoundPlayer(@"Sounds\potionSound.wav");
+        static SoundPlayer title1Sound = new SoundPlayer(@"Sounds\title1.wav");
+        static SoundPlayer title2Sound = new SoundPlayer(@"Sounds\title2.wav");
+        static int rows = 5;
+        static int cols = (Console.WindowWidth / 4) + 1;
+        static int brickWidth = 4;
+        static int brickHeight = 1;
+        static int barX;
+        static int barY;
+        static int ballX;
+        static int ballY;
+        static int dx = 1;
+        static int dy = 1;
+        static bool running = true;
+        static bool gameOver = false;
+
+        // CSKingdom vars
         const int LIGHT_ATTACK_DAMAGE = 10;
         const int MEDIUM_ATTACK_DAMAGE = 20;
         const int HEAVY_ATTACK_DAMAGE = 40;
@@ -34,7 +62,12 @@ namespace JuegoNavidad
 ⡴⣴⡴⣤⢤⣤⣄⣤⣦⣤⢢⣤⣤⣴⣤⣴⣤⢴⣤⣀⡄⣤⡄⣤⡄⣤⣠⣤⢠⣤⢤⡄⣤⣤⣤⢠⣄⣤⣠⣄⢤⡤⣤⣠⣄⢤⣄⣤⡠⣤⢤⣤⣤⣤⣄⣤⡠⣄⢤⣤⣤⣤⣤⣤⣤⣤⣤⣤⡤⣤⢤⡤⣤⢄⠀⣀⢀⡄⣤⢠
 ⠚⠫⠚⠋⠛⠫⠞⠫⠟⠻⠟⠫⠟⠛⠿⠛⠿⠛⠿⠛⠿⠛⠿⠛⠿⠛⠏⠛⠯⠛⠯⠛⠿⠛⠿⠟⠿⠎⠟⠿⠻⠙⠺⠻⠿⠟⠿⠟⠟⠺⠟⠿⠟⠿⠾⠿⢿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠷⠿⠿⠿⠿
 ";
-
+        const string CSKINGDOM = @"
+ ____ ____ _  _ ____ ____ ___      
+ |___ ==== |--| |--| |--< |--'
+_  _ _ __ _ ____ ___  ____ _  _
+|-:_ | | \| |__, |__> [__] |\/|
+";
         const string TITLE = @"
                                           .-++=:                              
                                         :%@@@@@%-                            
@@ -165,6 +198,193 @@ _N\ |(`\ |___
         | |     | |
       <\\\)     (///>
 ";
+        // Arkanoid
+        public static void DrawBrick(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write("▓▓▓▓");
+        }
+
+        public static void EraseBrick(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write("    ");
+        }
+
+        public static bool[,] DrawBricks()
+        {
+            bool[,] bricks = new bool[rows, cols];
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    int x = j * brickWidth;
+                    int y = i * brickHeight;
+                    bricks[i, j] = true;
+                    if (i % 2 == 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    }
+
+                    DrawBrick(x, y);
+                    Console.ResetColor();
+                }
+            }
+            return bricks;
+        }
+        public static void BrickCollision(int rows, int cols, bool[,] bricks)
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    if (bricks[i, j])
+                    {
+                        int brickX = j * brickWidth;
+                        int brickY = i * brickHeight;
+
+
+                        if (ballX >= brickX && ballX < brickX + brickWidth &&
+                            ballY == brickY)
+                        {
+                            dy *= -1;
+                            brickReboundSound.Play();
+                            EraseBrick(brickX, brickY);
+                            bricks[i, j] = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        public static void MoveBar(ConsoleKeyInfo? key)
+        {
+            if (key.HasValue)
+            {
+                switch (key.Value.Key)
+                {
+                    case ConsoleKey.LeftArrow:
+                        if (barX > 1)
+                        {
+                            EraseBar(barX + 8, barY);
+                            barX -= 2; // Velocidad barra
+                            DrawBar(barX, barY);
+                        }
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (barX < Console.WindowWidth - 16)
+                        {
+                            EraseBar(barX, barY);
+                            barX += 2; // Velocidad barra
+                            DrawBar(barX, barY);
+                        }
+                        break;
+                }
+            }
+        }
+
+        public static void DrawBar(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+            Console.ResetColor();
+        }
+
+        public static void EraseBar(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write("        ");
+        }
+
+        public static void MoveBall(ref bool gameOver)
+        {
+            EraseBall(ballX, ballY);
+            ballX += dx;
+            ballY += dy;
+
+            // Colisiones consola
+            // Horizontal
+            if (ballX >= Console.WindowWidth - 1 || ballX <= 0)
+            {
+                dx *= -1;
+                
+            }
+            // Vertical
+            if (ballY <= 0)
+            {
+                dy *= -1;
+                
+            }
+
+            if (ballY >= Console.WindowHeight - 1)
+            {
+                gameOver = true;
+                gameOverSound.Play();
+                Thread.Sleep(200);
+            }
+
+            // Colisiones barra
+            if (ballY + dy == barY && ballX + dx >= barX && ballX + dx <= barX + 16)
+            {
+                dy *= -1;
+                barReboundSound.Play();
+            }
+
+            DrawBall(ballX, ballY);
+        }
+
+        public static void GetReady()
+        {
+            DrawText((Console.WindowWidth / 2) - 7, Console.WindowHeight / 2, 100, "GET READY");
+            Thread.Sleep(1000);
+            DrawText((Console.WindowWidth / 2) - 7, Console.WindowHeight / 2, 0, "         ");
+            DrawText((Console.WindowWidth / 2) - 7, Console.WindowHeight / 2, 100, "   GO!");
+            Thread.Sleep(500);
+            DrawText((Console.WindowWidth / 2) - 7, Console.WindowHeight / 2, 0, "      ");
+        }
+
+        public static void DrawBall(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write("O");
+        }
+
+        public static void EraseBall(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.Write(" ");
+        }
+
+        public static void Arkanoid()
+        {
+            
+            barX = (Console.WindowWidth / 2) - 10;
+            barY = Console.WindowHeight - 5;
+            ballX = (Console.WindowWidth / 2) - 35;
+            ballY = (Console.WindowHeight / 2) - 15;
+
+            Console.CursorVisible = false;
+
+            bool[,] bricks = DrawBricks();
+
+            DrawBar(barX, barY);
+
+            GetReady();
+
+            while (running && !gameOver)
+            {
+                ConsoleKeyInfo? key = Console.KeyAvailable ? Console.ReadKey(true) : (ConsoleKeyInfo?)null;
+                MoveBar(key);
+                MoveBall(ref gameOver);
+                BrickCollision(rows, cols, bricks);
+                Thread.Sleep(25);
+            }
+
+            DrawText((Console.WindowWidth / 2) - 7, Console.WindowHeight / 2, 100, "GAME OVER");
+            Thread.Sleep(3000);
+            Console.Clear();
+        }
 
         // UI
         public static int SelectMainMenu(string[] options)
@@ -174,10 +394,9 @@ _N\ |(`\ |___
             int selectedOption = 0;
             while (true)
             {
-
                 for (int i = 0; i < options.Length; i++)
                 {
-                    int optionX = Math.Max(0, (Console.WindowWidth / 2) - (options[i].Length / 2));
+                    int optionX = Math.Max(0, ((Console.WindowWidth / 2) - 2) - (options[i].Length / 2));
                     int optionY = menuStartY + i;
                     if (i == selectedOption)
                     {
@@ -196,14 +415,17 @@ _N\ |(`\ |___
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.UpArrow)
                 {
+                    menuSelectSound.Play();
                     selectedOption = (selectedOption > 0) ? selectedOption - 1 : options.Length - 1;
                 }
                 else if (key.Key == ConsoleKey.DownArrow)
                 {
+                    menuSelectSound.Play();
                     selectedOption = (selectedOption < options.Length - 1) ? selectedOption + 1 : 0;
                 }
                 else if (key.Key == ConsoleKey.Enter)
                 {
+                    menuAcceptSound.Play();
                     return selectedOption;
                 }
             }
@@ -214,7 +436,6 @@ _N\ |(`\ |___
             int selectedOption = 0;
             while (true)
             {
-
                 for (int i = 0; i < options.Length; i++)
                 {
 
@@ -236,14 +457,17 @@ _N\ |(`\ |___
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.UpArrow)
                 {
+                    menuSelectSound.Play();
                     selectedOption = (selectedOption > 0) ? selectedOption - 1 : options.Length - 1;
                 }
                 else if (key.Key == ConsoleKey.DownArrow)
                 {
+                    menuSelectSound.Play();
                     selectedOption = (selectedOption < options.Length - 1) ? selectedOption + 1 : 0;
                 }
                 else if (key.Key == ConsoleKey.Enter)
                 {
+                    menuAcceptSound.Play();
                     return selectedOption;
                 }
             }
@@ -324,6 +548,11 @@ _N\ |(`\ |___
                 for (int i = 0; i < text.Length; i++)
                 {
                     Console.Write(text[i]);
+                    
+                    if (timeBetweenKeyStrokes > 0)
+                    {
+                        textClickSound.Play();
+                    }
                     Thread.Sleep(timeBetweenKeyStrokes);
                 }
             }
@@ -333,18 +562,36 @@ _N\ |(`\ |___
             }
         }
 
-        public static void EraseText(int x, int y, int spaceBetweenKeyStrokes, string text)
+        public static void DrawTextLines(int x, int y, int timeBetweenKeyStrokes, string text)
         {
-            string spaces = new string(' ', text.Length);
-            DrawText(x, y, spaceBetweenKeyStrokes, spaces);
+            string[] textLines = text.Split('\n');
+            for (int i = 0; i < textLines.Length; i++)
+            {
+                string line = textLines[i];
+                Console.SetCursorPosition(x, y++);
+                Console.Write(line);
+            }
         }
+
+        
+
+        public static void EraseText(int x, int y, int spaceBetweenKeyStrokes, int spaceX, int spaceY)
+        {
+            string spaces = new string(' ', spaceX);
+            for (int i = 0; i < spaceY; i++)
+            {
+                DrawText(x, y, spaceBetweenKeyStrokes, spaces);
+            }
+        }
+
+
 
         public static int DrawMainMenu(string[] menuOptions, string title)
         {
             Console.CursorVisible = false;
             string[] titleLines = title.Split('\n');
             int titleY = Console.WindowHeight / 2 - menuOptions.Length - 15;
-
+            title1Sound.Play();
             for (int i = 0; i < titleLines.Length; i++)
             {
                 string line = titleLines[i];
@@ -352,9 +599,12 @@ _N\ |(`\ |___
                 Console.SetCursorPosition(titleX, titleY++);
                 Console.Write(line);
 
+                
                 if (i == titleLines.Length - 4)
                 {
+                    title1Sound.Stop();
                     Thread.Sleep(2000);
+                    title2Sound.Play();
                 }
                 else
                 {
@@ -423,14 +673,18 @@ _N\ |(`\ |___
         }
 
         // Battle
-        public static void PlayerTurn(int playerChoice, string[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, string enemyName)
+        public static void PlayerTurn(int playerChoice, int[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, ref int playerMana, string enemyName, string playerName)
         {
             bool success = false;
+            bool attack = false;
             int chosenAttackDamage = 0;
+            string playerAttack = "";
             switch (playerChoice)
             {
                 case 0:
+                    attack = true;
                     success = generator.Next(1, 101) <= LIGHT_ATTACK_PROBABILITY;
+                    playerAttack = "Light Strike";
                     if (success)
                     {
                         computerHealth -= LIGHT_ATTACK_DAMAGE;
@@ -438,7 +692,9 @@ _N\ |(`\ |___
                     }
                     break;
                 case 1:
+                    attack = true;
                     success = generator.Next(1, 101) <= MEDIUM_ATTACK_PROBABILITY;
+                    playerAttack = "Medium Strike";
                     if (success)
                     {
                         computerHealth -= MEDIUM_ATTACK_DAMAGE;
@@ -446,7 +702,9 @@ _N\ |(`\ |___
                     }
                     break;
                 case 2:
+                    attack = true;
                     success = generator.Next(1, 101) <= HEAVY_ATTACK_PROBABILITY;
+                    playerAttack = "Heavy Strike";
                     if (success)
                     {
                         computerHealth -= HEAVY_ATTACK_DAMAGE;
@@ -454,28 +712,54 @@ _N\ |(`\ |___
                     }
                     break;
                 case 3:
-                    int selection = Select(Console.WindowWidth / 2, 40, playerInventory);
-                    switch (selection)
+                    if (playerInventory[0] > 0)
                     {
-                        case 1:
-                            break;
+                        DrawText(50, 38, 0, $"{playerName} used a  health potion and healed {POTION_HEALING_AMMOUNT}!");
+                        playerHealth += POTION_HEALING_AMMOUNT;
+                        CorrectHealth(ref playerHealth, ref computerHealth);
+                        DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                     }
+                    else
+                    {
+                        DrawText(50, 38, 0, $"{playerName} doesn't have any health potion left!");
+                    }
+                    Thread.Sleep(1000);
                     break;
-
+                case 4:
+                    if (playerInventory[1] > 0)
+                    {
+                        DrawText(50, 38, 0, $"{playerName} used a mana potion and recovered {MANA_RECOVER_AMMOUNT}!");
+                        playerMana += MANA_RECOVER_AMMOUNT;
+                        
+                    }
+                    else
+                    {
+                        DrawText(50, 38, 0, $"{playerName} doesn't have any mana potion left!");
+                    }
+                    Thread.Sleep(1000);
+                    break;
             }
-
+            EraseText(50, 38, 0, 65, 1);
+            if (attack)
+            {
+                DrawText(50, 38, 0, $"{playerName} attacks with a {playerAttack}!");
+            }
+            
             if (success)
             {
-
-                DrawText(24, 30, 0, $"Attack successful! You dealt {chosenAttackDamage} damage to {enemyName}.");
+                meleeHitSound.Play();
+                EraseText(50, 40, 0, 65, 1);
+                DrawText(50, 40, 0, $"Attack successful! You dealt {chosenAttackDamage} damage to {enemyName}.");
             }
-            else
+            else if (attack)
             {
-                DrawText(24, 30, 0, "Attack missed!");
+                missHitSound.Play();
+                EraseText(50, 40, 0, 65, 1);
+                DrawText(50, 40, 0, "Attack missed!");
             }
         }
 
-        public static void ComputerTurn(Random generator, ref int playerHealth)
+        public static void ComputerTurn(Random generator, ref int playerHealth, string enemyName)
         {
             int chosenAttackDamage = 0;
             bool success = false;
@@ -511,15 +795,19 @@ _N\ |(`\ |___
                     }
                     break;
             }
-
+            EraseText(50, 38, 0, 65, 1);
+            DrawText(50, 38, 0, $"{enemyName} attacks with a {computerAttack}!");
             if (success)
             {
-                DrawText(24, 30, 0, $"The computer attacks with a {computerAttack}!");
-                DrawText(24, 30, 0, $"Attack successful! Computer deals {chosenAttackDamage} damage to you.");
+                meleeHitSound2.Play();
+                EraseText(50, 40, 0, 65, 1);
+                DrawText(50, 40, 0, $"Attack successful! {enemyName} deals {chosenAttackDamage} damage to you.");
             }
             else
             {
-                DrawText(24, 30, 0, "Attack missed!");
+                missHitSound.Play();
+                EraseText(50, 40, 0, 65, 1);
+                DrawText(50, 40, 0, $"{enemyName} attack missed!");
             }
         }
 
@@ -535,23 +823,26 @@ _N\ |(`\ |___
 
         public static void BattleEndMessage(string victoryMessage, string defeatMessage, bool win)
         {
-            DrawText(Console.WindowWidth / 2, (Console.WindowHeight / 2) + 10, 10, win ? victoryMessage : defeatMessage);
+            DrawText((Console.WindowWidth / 2) - 5, (Console.WindowHeight / 2) + 10, 10, win ? victoryMessage : defeatMessage);
         }
 
         public static void CorrectHealth(ref int playerHealth, ref int computerHealth)
         {
-            playerHealth = Math.Max(playerHealth, 0);
-            computerHealth = Math.Max(computerHealth, 0);
+            playerHealth = (playerHealth < 0) ? 0 : (playerHealth > 100) ? 100 : playerHealth;
+            computerHealth = (computerHealth < 0) ? 0 : (computerHealth > 100) ? 100 : computerHealth;
         }
 
         public static void DisplayHealth(int playerHealth, int computerHealth, string playerName, string enemyName)
         {
-            DrawText(24, 30, 0, $"{enemyName} health: {computerHealth} Your health: {playerHealth}");
+            EraseText(45, 35, 0, 70, 1);
+            DrawText(46, 35, 0, $"{playerName} health: {playerHealth}");
+            DrawText(92, 35, 0, $"{enemyName} health: {computerHealth}");
         }
 
-        public static bool Battle(Random generator, ref int playerHealth, ref int computerHealth, string[] playerInventory, string[] options, string playerName, string enemyName, string enemyDrawing)
+        public static bool Battle(Random generator, ref int playerHealth, ref int playerMana, ref int computerHealth, int[] playerInventory, string[] options, string playerName, string enemyName, string enemyDrawing)
         {
-            DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, enemyDrawing);
+            DrawEnemy(Console.WindowWidth / 2, (Console.WindowHeight / 2) - 15, enemyDrawing);
+            DrawText(15, 5, 0, enemyName);
 
             bool win = false;
             bool defeat = false;
@@ -559,29 +850,32 @@ _N\ |(`\ |___
             int playerChoice;
             while (!win && !defeat)
             {
-                playerChoice = Select((Console.WindowWidth / 2) - 20, 40, options);
+                playerChoice = Select(6, 36, options);
 
-                PlayerTurn(playerChoice, playerInventory, generator, ref computerHealth, ref playerHealth, enemyName);
+                PlayerTurn(playerChoice, playerInventory, generator, ref computerHealth, ref playerHealth, ref playerMana, enemyName, playerName);
 
                 if (computerHealth > 0)
                 {
+                    CorrectHealth(ref playerHealth, ref computerHealth);
                     DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                 }
 
                 win = PlayerWon(computerHealth);
-
+                Thread.Sleep(2000);
+                
                 if (!win)
                 {
-                    ComputerTurn(generator, ref playerHealth);
+                    
                     if (playerHealth > 0)
                     {
+                        ComputerTurn(generator, ref playerHealth, enemyName);
+                        CorrectHealth(ref playerHealth, ref computerHealth);
                         DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                     }
-
+                    
                     defeat = ComputerWon(playerHealth);
+                    
                 }
-
-                CorrectHealth(ref playerHealth, ref computerHealth);
 
                 if (win || defeat)
                 {
@@ -620,13 +914,14 @@ _N\ |(`\ |___
             return playerChoice;
         }
 
-        // Menus
-        static string[] playerBattleOptions = { "Light (80% success, 10 damage)", "Medium (50% success, 20 damage)", "Heavy (30% success, 40 damage)", "Potion (recover 50 health points)" };
+        // Menu options
+        static string[] playerBattleOptions = { $"Light ({LIGHT_ATTACK_PROBABILITY}% success, {LIGHT_ATTACK_DAMAGE} damage)", $"Medium ({MEDIUM_ATTACK_PROBABILITY}% success, {MEDIUM_ATTACK_DAMAGE} damage)", $"Heavy ({HEAVY_ATTACK_PROBABILITY}% success, {HEAVY_ATTACK_DAMAGE} damage)", $"Potion (recover {POTION_HEALING_AMMOUNT} health points)" };
         static string[] mainMenuOptions = { "New Game", "Instructions", "Exit" };
 
         static void Main()
         {
             //Recommended font: Cascadia Mono
+            Console.CursorVisible = false;
             Console.SetWindowSize(170, 44);
             Console.SetBufferSize(171, 45);
 
@@ -636,38 +931,30 @@ _N\ |(`\ |___
 
             int computerHealth = 100;
 
-            string[] playerInventory = new string[5];
-            playerInventory[0] = "potion";
+            int[] playerInventory = new int[5];
+            playerInventory[0] = 2;
+            playerInventory[1] = 2;
 
             string playerName = "HieN";
             string enemyName = "Patatones";
 
             Random generator = new Random();
 
-            // MaxWiwdth = 170 MaxHeight = 44
-            // maxWidth = Console.LargestWindowWidth;
-            // int maxHeight = Console.LargestWindowHeight;
-            //Console.WriteLine($"Largest console size: {maxWidth} x {maxHeight}");
-
-            //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, GOBLIN);
-            //DrawText((Console.WindowWidth / 2) + 5, (Console.WindowHeight / 2) + 5, 0, "Press F11, I'm telling ya!");
-            //Thread.Sleep(5000);
-
-            //Console.Clear();
-
-
-            int selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
+            //int selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
 
             Console.Clear();
 
-            DrawRectangle(5, 0, Console.WindowWidth - 11, Console.WindowHeight - 10, '▓'); //Frame
-            DrawRectangle(5, 35, 30, 5, '#');
-            DrawRectangle(55, 35, 50, 5, '#');
-            DrawRectangle(105, 35, 50, 5, '#');
+            //Arkanoid();
 
-            DrawEnemy(Console.WindowWidth - 50, 2, SCENERY_1);
+            //UI
+            DrawRectangle(5, 0, Console.WindowWidth - 11, Console.WindowHeight - 10, '▓'); //Main Frame
+            DrawRectangle(5, 34, 37, 8, '▓');//First frame - option selection frame
+            DrawRectangle(42, 34, 73, 8, '▓');//Second frame - info frame
+            DrawRectangle(115, 34, 49, 8, '▓');//Third frame - Game Logo
+            DrawTextLines(125, 35, 0, CSKINGDOM);
 
-            //Battle(generator, ref playerHealth, ref computerHealth, playerInventory, playerBattleOptions, playerName, enemyName, GOBLIN);
+            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, enemyName, SKELETON);
+            Console.ReadLine();
 
             //switch (selectedOption)
             //{
@@ -681,14 +968,10 @@ _N\ |(`\ |___
             //        break;
             //}
 
-            Console.ReadLine();
-            
+
+
             //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 4, goblin); 
             //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, dog);
-
-
-
-            //Battle(generator, ref playerHealth, ref computerHealth, playerInventory, options, playerName, enemyName, GOBLIN);
         }
     }
 
