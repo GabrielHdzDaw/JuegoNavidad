@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Media;
 using System.Text;
 using System.Threading;
@@ -8,11 +9,135 @@ namespace JuegoNavidad
 {
     internal class CSKingdom
     {
+        // Epilepsy
+        public static void Epilepsy(int interval, int duration)
+        {
+            Console.CursorVisible = false;
+            DateTime startTime = DateTime.Now;
+
+            while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+            {
+                Console.BackgroundColor = (ConsoleColor)new Random().Next(Enum.GetValues(typeof(ConsoleColor)).Length);
+                Console.Clear();
+                Thread.Sleep(interval);
+            }
+            Console.ResetColor();
+        }
+        // Matrix
+        const string LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=<>?;:,.¿¡[]{}|\\/~`¿¡一二三四五六七八九十";
+        const int TRAIL = 15;
+        const int NUMBER_OF_TRAILS = 25;
+        const int MIN_DELAY = 1;
+        const int MAX_DELAY = 50;
+
+        
+        public static readonly object ConsoleLock = new object();//Esto es para que no pete con tantos trails
+
+        
+        public static ConsoleColor GetTrailColor(int position)//Escoger el color de las letras en función de dónde estén en el trail
+        {
+            if (position == 0)
+                return ConsoleColor.White;
+            else if (position < 5)
+                return ConsoleColor.Green;
+            else if (position < 10)
+                return ConsoleColor.DarkGreen;
+            else
+                return ConsoleColor.DarkGray;
+        }
+
+        public static void RunTrail(int x, int delay, Random gen, CancellationToken token)
+        {
+            int height = Console.WindowHeight;
+            char[] letters = new char[TRAIL];
+            for (int i = 0; i < TRAIL; i++)
+            {
+                letters[i] = GetRandomLetter(gen);
+            }
+
+            int y = 0;
+
+            while (!token.IsCancellationRequested)
+            {
+                lock (ConsoleLock)
+                {
+                    for (int i = 0; i < TRAIL; i++)
+                    {
+                        int drawPosition = y - i;
+
+                        if (drawPosition >= 0 && drawPosition < height)
+                        {
+                            Console.SetCursorPosition(x, drawPosition);
+                            Console.ForegroundColor = GetTrailColor(i);
+                            Console.Write(letters[i]);
+                        }
+
+                        // Borrar la última letra del trail
+                        if (drawPosition - TRAIL >= 0)
+                        {
+                            Console.SetCursorPosition(x, drawPosition - TRAIL);
+                            Console.Write(" ");
+                        }
+                    }
+                }
+
+                y++;
+
+                // Reiniciar cuando el trail sale de la pantalla
+                if (y - TRAIL >= height)
+                {
+                    y = 0;
+                    x = gen.Next(0, Console.WindowWidth);
+                    for (int i = 0; i < TRAIL; i++)
+                    {
+                        letters[i] = GetRandomLetter(gen);
+                    }
+                }
+
+                Thread.Sleep(delay); // Delay ajustado al mínimo
+            }
+        }
+
+        public static char GetRandomLetter(Random random)
+        {
+            return LETTERS[random.Next(LETTERS.Length)];
+        }
+
+        public static void Matrix(int duration)
+        {
+            Console.CursorVisible = false;
+            Random gen = new Random();
+
+            // Token para manejar la cancelación
+            CancellationTokenSource cts = new CancellationTokenSource();
+
+            // Hacemos array de threads
+            Thread[] threads = new Thread[NUMBER_OF_TRAILS];
+
+            for (int i = 0; i < NUMBER_OF_TRAILS; i++)
+            {
+                // Crear un hilo por trail
+                int startX = gen.Next(0, Console.WindowWidth);
+                int delay = gen.Next(MIN_DELAY, MAX_DELAY);
+                threads[i] = new Thread(() => RunTrail(startX, delay, gen, cts.Token));
+                threads[i].Start();
+            }
+
+         
+            Thread.Sleep(duration);
+            cts.Cancel();
+
+            // Unir los hilos para asegurarse de que terminen
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
+        }
         // Arkanoid vars
         static SoundPlayer barReboundSound = new SoundPlayer(@"Sounds\barRebound.wav");
         static SoundPlayer brickReboundSound = new SoundPlayer(@"Sounds\brickRebound.wav");
         static SoundPlayer gameOverSound = new SoundPlayer(@"Sounds\gameOver.wav");
-        
+
         static int rows = 5;
         static int cols = (Console.WindowWidth / 4) + 1;
         static int brickWidth = 4;
@@ -46,10 +171,232 @@ namespace JuegoNavidad
         static SoundPlayer missHitSound = new SoundPlayer(@"Sounds\missHit.wav");
         static SoundPlayer potionSound = new SoundPlayer(@"Sounds\potionSound.wav");
         static SoundPlayer title1Sound = new SoundPlayer(@"Sounds\title1.wav");
+        static SoundPlayer title1LowVolumeSound = new SoundPlayer(@"Sounds\title1LowVolume.wav");
         static SoundPlayer title2Sound = new SoundPlayer(@"Sounds\title2.wav");
+        static SoundPlayer insertCoinSound = new SoundPlayer(@"Sounds\insertCoin.wav");
+        static SoundPlayer powerOutSound = new SoundPlayer(@"Sounds\powerOut.wav");
+        static SoundPlayer thunderSound = new SoundPlayer(@"Sounds\thunderSound.wav");
+        static SoundPlayer switchSound = new SoundPlayer(@"Sounds\switch.wav");
+        static SoundPlayer beepBoopSound = new SoundPlayer(@"Sounds\beepBoop.wav");
 
         // Drawings
-       
+
+        const string ARCADE_MACHINE_FRAME_1 = @"
+  *%%%%%%%%%%%%%%*                                
+  :%%%%%%%%%%%%%%:                                
+   ##.=******=.##                                 
+   ##.*%%%%%%*.##                                 
+   #%:.::::::.:%#                                 
+   ..............                                 
+ =%% ..#%%%%#.  %%=                               
+:::::.::::::::.::::.                              
+                                                  
+  *%%%%%%%%%%%%%%*                                
+  *%%%%%%%%%%%%%%*                                
+  *%%%%%%%%%%%%%%*
+";
+        const string ARCADE_MACHINE_FRAME_2 = @"
+  ::::::::::::::::                                
+                                                  
+   %%%%%%%%%%%%%%                                 
+   %*.*%%%%%%#.+%                                 
+   %*.#%%%%%%#.+%                                 
+   %#-........-#%                                 
+   ...............                                
+ *%# ..%%%%%%.. *%*                               
+ ...   ......   ...                               
+********************                              
+ .#%%%%%%%%%%%%%%%.                               
+ .#%%%%%%%%%%%%%%%.                               
+ .#%%%%%%%%%%%%%%%.                               
+ .::::::::::::::::. 
+";
+        const string ARCADE_MACHINE_FRAME_3 = @"
+   -%%%%%%%%%%%%%%%%-                               
+    -===============                                
+    .%#.        .#%:                                
+    .%=:#%%%%%%%:=%:                                
+    .%=:#%%%%%%%:=%:                                
+    .%%-        -%%:                                
+    ::::::::::::::::                                
+   %%= ..%%%%%%.. =%%                               
+                                                    
+ =%%%%%%%%%%%%%%%%%%%%+                             
+   :****************:                               
+   -%%%%%%%%%%%%%%%%-                               
+   -%%%%%%%%%%%%%%%%-                               
+   +%%%%%%%%%%%%%%%%+    
+";
+        const string ARCADE_MACHINE_FRAME_4 = @"
+   ::::::::::::::::                                
+   ::::::::::::::::                                
+   *%%%%%%%%%%%%%%*                                
+   =%= -------- -%=                                
+   -%::%%%%%%%%-.%=                                
+   -%::%%%%%%%%-.%=                                
+   -%%=::::::::-%%=                                
+   ----------------                                
+ :%%:...%%%%%%. ::%%:                              
+ ::::  ::::::::  ::::                              
+%%%%%%%%%%%%%%%%%%%%%%                             
+  .----------------.                               
+  =%%%%%%%%%%%%%%%%+                               
+  =%%%%%%%%%%%%%%%%+                               
+  =%%%%%%%%%%%%%%%%+                               
+  ::::::::::::::::::      
+";
+        const string ARCADE_MACHINE_FRAME_5 = @"
+  *%%%%%%%%%%%%%%%%*                               
+   ::::::::::::::::.                               
+   *%%%########%%%*                                
+   *%..########:.%*                                
+   *%.-%%%%%%%%- %*                                
+   *%.:########-.%*                                
+   *%%=--------=%%*                                
+  .==-==========-==.                               
+ =%% :.:%%%%%%:.- %%=                              
+.====  ========  -===:                             
+######################.                            
+                                                   
+  *%%%%%%%%%%%%%%%%*                               
+  *%%%%%%%%%%%%%%%%*                               
+  *%%%%%%%%%%%%%%%%*                               
+ =#%%%%%%%%%%%%%%%%#=       
+";
+        const string ARCADE_MACHINE_FRAME_6 = @"
+   ::::::::::::::::::                               
+   ==================                               
+   =****************=                               
+    %%*          *%%                                
+    %% -%%%%%%%%= %%                                
+    %% -%%%%%%%%= %%                                
+    %%.:********:.%%                                
+    %%%*++++++++*%%%                                
+   -================-                               
+  *%% -.:%%%%%%-.- %%#                              
+ =***+ .********. +***+                             
+:++++++++++++++++++++++-                            
+  ....................                              
+  .#%%%%%%%%%%%%%%%%#:                              
+  :#%%%%%%%%%%%%%%%%%:                              
+  :#%%%%%%%%%%%%%%%%%:                              
+  :#%%%%%%%%%%%%%%%%%:                              
+  ::::::::::::::::::::        
+";
+        const string ARCADE_MACHINE_FRAME_7 = @"
+  -%%%%%%%%%%%%%%%%%%-                              
+   ..................                               
+   =%%%%%%%%%%%%%%%%=                               
+   .%#: ........ :#%.                               
+   .%# =%%%%%%%%=.*%.                               
+   .%# =%%%%%%%%=.*%.                               
+   .%#..========..*%.                               
+   .%%%##########%%%.                               
+   =++=++++++++++=++=                               
+  %%* -.-%%%%%%-.- *%%                              
+ ####+ :########: =####.                            
+========================                            
+++++++++++++++++++++++++                            
+  :******************:                              
+  -%%%%%%%%%%%%%%%%%%-                              
+  -%%%%%%%%%%%%%%%%%%-                              
+  -%%%%%%%%%%%%%%%%%%-                              
+ :#%%%%%%%%%%%%%%%%%%#:          
+";
+        const string ARCADE_MACHINE_FRAME_8 = @"
+   ::::::::::::::::::                               
+  -##################=                              
+   -================-                               
+   -%%%##########%%%=                               
+   -%+.-********-.+%-                               
+   -%+.+%%%%%%%%+.+%-                               
+   -%+.+%%%%%%%%+.=%-                               
+   -%*..::::::::..+%-                               
+   -%%%%%%%%%%%%%%%%-                               
+   ++++++++++++++++++                               
+ .%%= :.=%%%%%%=.: =%%:                             
+-%%%%= -%%%%%%%%= -#%%%-                            
+::::::::::::::::::::::::                            
+%%%%%%%%%%%%%%%%%%%%%%%%.                           
+  :==================:                              
+  =%%%%%%%%%%%%%%%%%%+                              
+  =%%%%%%%%%%%%%%%%%%+                              
+  =%%%%%%%%%%%%%%%%%%+                              
+  =%%%%%%%%%%%%%%%%%%+                              
+ .::::::::::::::::::::.            
+";
+        const string ARCADE_MACHINE_FRAME_9 = @"
+   %%%%%%%%%%%%%%%%%%%%                              
+      CSHARP KINGDOM                                               
+   :%%%%%%%%%%%%%%%%%%-                              
+    *%%=          =%%#                               
+    *%+ %%%%%%%%%% =%#                               
+    *%+ %%%%%%%%%% =%#                               
+    *%+ %%%%%%%%%% =%#                               
+    *%%            %%#                               
+    *%%%%%%%%%%%%%%%%#                               
+   -***+**********+***-                              
+  +%%: + *%%%%%%# + .%%*                             
+ *%%%%  =%%%%%%%%=  %%%%#                            
+                                                     
+*%%%%%%%%%%%%%%%%%%%%%%%%#                           
+                                                     
+   %%%%%%%%%%%%%%%%%%%%                              
+   %%%%%%%%%%%%%%%%%%%%                              
+   %%%%%%%%%%%%%%%%%%%%                              
+   %%%%%%%%%%%%%%%%%%%%                              
+  %%%%%%%%%%%%%%%%%%%%%%              
+";
+        const string ARCADE_MACHINE_FRAME_10 = @"
+   --------------------                              
+   %%%%%%%%%%%%%%%%%%%%.                             
+      CSHARP KINGDOM                                            
+    %%%%%%%%%%%%%%%%%%                               
+    %%#            #%%                               
+    %%- %%%%%%%%%% -%%                               
+    %%- %%%%%%%%%% -%%                               
+    %%- %%%%%%%%%% -%%                               
+    %%%            %%%                               
+    ##################                               
+   ****+**********+****                              
+  #%%  = #%%%%%%# =  %%#                             
+ %%%%#  =%%%%%%%%=  #%%%%                            
+                                                     
+%%%%%%%%%%%%%%%%%%%%%%%%%%                           
+                                                     
+   %%%%%%%%%%%%%%%%%%%%.                             
+   %%%%%%%%%%%%%%%%%%%%.                             
+   %%%%%%%%%%%%%%%%%%%%.                             
+   %%%%%%%%%%%%%%%%%%%%.                             
+   %%%%%%%%%%%%%%%%%%%%.                             
+  ----------------------                
+";
+        const string ARCADE_MACHINE_FRAME_11 = @"
+  +%%%%%%%%%%%%%%%%%%%%#                             
+  .:::CSHARP KINGDOM::::                             
+   %%%%%%%%%%%%%%%%%%%%                              
+   .%%%%%%%%%%%%%%%%%%:                              
+   .%%- ========== :%%.                              
+   .%%. %%% ;  %%% .%%.                              
+   .%%. %%%%%%%%%% .%%.                              
+   .%%. %%%%%%%%%% .%%.                              
+   .%%#            #%%.                              
+    ==================                               
+   *##**##########**###                              
+  %%% .: %%%%%%%% :: %%%                             
+ %%%%=  -%%%%%%%%=  -%%%%                            
+                                                     
+%%%%%%%%%%%%%%%%%%%%%%%%%%                           
+                                                     
+  +%%%%%%%%%%%%%%%%%%%%#                             
+  +%%%%%%%%%%%%%%%%%%%%#                             
+  +%%%%%%%%%%%%%%%%%%%%#                             
+  +%%%%%%%%%%%%%%%%%%%%#                             
+  +%%%%%%%%%%%%%%%%%%%%#                             
+ #%%%%%%%%%%%%%%%%%%%%%%%               
+";
+        static string[] arcadeFrames = {ARCADE_MACHINE_FRAME_1, ARCADE_MACHINE_FRAME_2, ARCADE_MACHINE_FRAME_3, ARCADE_MACHINE_FRAME_4,
+            ARCADE_MACHINE_FRAME_5, ARCADE_MACHINE_FRAME_6, ARCADE_MACHINE_FRAME_7, ARCADE_MACHINE_FRAME_8, ARCADE_MACHINE_FRAME_9, ARCADE_MACHINE_FRAME_10, ARCADE_MACHINE_FRAME_11};
         const string CSKINGDOM = @"
  ____ ____ _  _ ____ ____ ___      
  |___ ==== |--| |--| |--< |--'
@@ -321,13 +668,13 @@ _N\ |(`\ |___
             if (ballX >= Console.WindowWidth - 1 || ballX <= 0)
             {
                 dx *= -1;
-                
+
             }
             // Vertical
             if (ballY <= 0)
             {
                 dy *= -1;
-                
+
             }
 
             if (ballY >= Console.WindowHeight - 1)
@@ -371,7 +718,7 @@ _N\ |(`\ |___
 
         public static void Arkanoid()
         {
-            
+
             barX = (Console.WindowWidth / 2) - 10;
             barY = Console.WindowHeight - 5;
             ballX = (Console.WindowWidth / 2) - 35;
@@ -567,7 +914,7 @@ _N\ |(`\ |___
                 for (int i = 0; i < text.Length; i++)
                 {
                     Console.Write(text[i]);
-                    
+
                     if (timeBetweenKeyStrokes > 0)
                     {
                         textClickSound.Play();
@@ -592,7 +939,7 @@ _N\ |(`\ |___
             }
         }
 
-        
+
 
         public static void EraseText(int x, int y, int spaceBetweenKeyStrokes, int spaceX, int spaceY)
         {
@@ -618,7 +965,7 @@ _N\ |(`\ |___
                 Console.SetCursorPosition(titleX, titleY++);
                 Console.Write(line);
 
-                
+
                 if (i == titleLines.Length - 4)
                 {
                     title1Sound.Stop();
@@ -691,6 +1038,105 @@ _N\ |(`\ |___
             }
         }
 
+        public static void DrawArcade()
+        {
+            for (int i = 0; i < arcadeFrames.Length; i++)
+            {
+                DrawEnemy((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 20, arcadeFrames[i]);
+                Thread.Sleep(100);
+                if (i < arcadeFrames.Length - 1)
+                {
+                    Console.Clear();
+                }
+            }
+        }
+
+        public static void EnterTheKingdomAnimation()
+        {
+            beepBoopSound.Play();
+            Epilepsy(200, 3000);
+            Console.Clear();
+            Matrix(3000);
+            Console.Clear();
+            Epilepsy(100, 2000);
+            Console.Clear();
+            Matrix(2000);
+            Console.Clear();
+            Epilepsy(50, 1000);
+            Console.Clear();
+            Matrix(1000);
+            Console.Clear();
+            Epilepsy(25, 500);
+            Console.Clear();
+            Matrix(500);
+            Console.Clear();
+            Epilepsy(1, 250);
+            Console.Clear();
+            Matrix(250);
+            Console.Clear();
+            Epilepsy(1, 1000);
+            Console.Clear();
+            Matrix(5000);
+            Console.ResetColor();
+            Console.Clear();
+            DrawTransition1();
+            Console.Clear();
+        }
+        public static string IntroScene()
+        {
+            Arkanoid();
+            Console.Clear();
+            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Buff, me aburre jugar siempre a los mismos juegos.");
+            Thread.Sleep(2000);
+            Console.Clear();
+            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "El dueño de los recreativos podría invertir un poco en máquinas nuevas.");
+            title1LowVolumeSound.Play();
+            Thread.Sleep(2000);
+            Console.Clear();
+            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Un momento... ¿qué es eso que suena?");
+            title1Sound.Play();
+            Thread.Sleep(3000);
+            Console.Clear();
+            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Viene de esa máquina... ¡No la había visto antes!");
+            Thread.Sleep(3000);
+            Console.Clear();
+            title1Sound.Play();
+            DrawArcade();
+            Thread.Sleep(5000);
+            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "CSHARP KINGDOM... tiene buena pinta...");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
+            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Me queda solo un duro... más vale que merezca la pena.");
+            Thread.Sleep(2000);
+            insertCoinSound.Play();
+            Thread.Sleep(3000);
+            thunderSound.Play();
+            Console.Clear();
+            Thread.Sleep(2000);
+            powerOutSound.Play();
+            Thread.Sleep(4000);
+            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "¿Q- q- qué ha pasado? Se ha ido la luz...");
+            Thread.Sleep(2000);
+            switchSound.Play();
+            DrawEnemy((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 20, arcadeFrames[arcadeFrames.Length - 1]);
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
+            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Oh vaya... volvió.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
+            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Bueno... CSHARP KINGDOM, prepárate.");
+            Thread.Sleep(2000);
+            thunderSound.Play();
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
+            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "¿Otra vez? Oh... oh... ¡OHH!");
+            Thread.Sleep(1000);
+            Console.Clear();
+            EnterTheKingdomAnimation();
+            string playerName = Console.ReadLine();
+            return playerName;
+        }
+
         // Battle
         public static void PlayerTurn(int playerChoice, int[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, ref int playerMana, string[] enemy, string playerName)
         {
@@ -753,7 +1199,7 @@ _N\ |(`\ |___
                     {
                         DrawText(50, 38, 0, $"¡{playerName} ha usado una poción de maná y ha recuperado {MANA_RECOVER_AMMOUNT}!");
                         playerMana += MANA_RECOVER_AMMOUNT;
-                        
+
                     }
                     else
                     {
@@ -768,7 +1214,7 @@ _N\ |(`\ |___
             {
                 DrawText(50, 38, 0, $"¡{playerName} ataca con un {playerAttack}!");
             }
-            
+
             if (success)
             {
                 meleeHitSound2.Play();
@@ -899,7 +1345,7 @@ _N\ |(`\ |___
                 DrawText(92, 35, 0, $"{enemyName}: {computerHealth}");
             }
 
-            
+
             Console.ResetColor();
         }
 
@@ -930,21 +1376,21 @@ _N\ |(`\ |___
 
                 win = PlayerWon(computerHealth);
                 Thread.Sleep(2000);
-                
+
                 if (!win)
                 {
-                    
+
                     if (playerHealth > 0)
                     {
                         ComputerTurn(generator, ref playerHealth, enemyName);
                         CorrectHealth(ref playerHealth, ref computerHealth);
                         DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                     }
-                    
+
                     defeat = ComputerWon(playerHealth);
-                    
+
                 }
-                
+
                 if (win || defeat)
                 {
                     if (win)
@@ -964,17 +1410,17 @@ _N\ |(`\ |___
             }
             return win;
         }
-       
-        
+
+
 
         // Menu options
         static string[] playerBattleOptions = { $"Ligero ({LIGHT_ATTACK_PROBABILITY}% éxito, {LIGHT_ATTACK_DAMAGE} daño)", $"Medio ({MEDIUM_ATTACK_PROBABILITY}% éxito, {MEDIUM_ATTACK_DAMAGE} daño)", $"Pesado ({HEAVY_ATTACK_PROBABILITY}% éxito, {HEAVY_ATTACK_DAMAGE} daño)", $"Poción (recupera {POTION_HEALING_AMMOUNT} de salud)" };
         static string[] mainMenuOptions = { "Nueva partida", "Instrucciones", "Salir" };
         // Enemies arrays
-        static string[] skeletonEnemy = { SKELETON, "Esqueleto", "¡Hola! ¿Nos damos unas hostias, o qué?", "¡Ayy! ¡Eso duele!", "¿Cómo puedes fallar eso?", "La oscuridad se cierne sobre mí... ¡adios!", "¡Debilucho! ¡Menudo saco de huesos! ¡JÁ!" };
+        static string[] skeletonEnemy = { SKELETON, "Esqueleto", "¡Hola! ¿Nos damos de hostias, o qué?", "¡Ayy! ¡Eso duele!", "¿Cómo puedes fallar eso?", "La oscuridad se cierne sobre mí... ¡adios!", "¡Debilucho! ¡Menudo saco de huesos! ¡JÁ!" };
         static string[] goblinEnemy = { GOBLIN, "Goblin", "¡Pequeño pero matón!", "Ouch!", "Pringao!", "No era necesario...", "Ya te lo dije... ¡matón, matón!" };
         static string[] knightEnemy = { KNIGHT, "Caballero", "¡Un mequetrefe! ¡Prendedle!", "No me duele >:D", "¡Buena! Espera... le querías dar al aire, ¿no?", "Era broma... sí que dolía, ayy..", "¡Ale! ¡Prendido!" };
-        static string[] dogEnemy = { DOG, "Perro", "¡Guau, guau! Efectivamente, soy un perro que pelea.", "¡AING AING AING!", "*mueve el rabo*", "*se va al cielo de los perros*", "*te mea*" };
+        static string[] dogEnemy = { DOG, "Perro", "¡Guau, guau! *arf arf*", "¡AING AING AING!", "*mueve el rabo*", "*se va al cielo de los perros*", "*te mea*" };
         static void Main()
         {
             // Recommended font: Cascadia Mono
@@ -996,29 +1442,24 @@ _N\ |(`\ |___
             int computerHealth = 100;
             Random generator = new Random();
 
-            //int selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
-
-            Console.Clear();
-
-            //Arkanoid();
-
+            playerName = IntroScene();
+            int selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
             //UI
             DrawUI();
 
             //Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, dogEnemy);
-            Console.ReadLine();
 
-            //switch (selectedOption)
-            //{
-            //    case 0:
-            //        Battle(generator, ref playerHealth, ref computerHealth, playerInventory, playerBattleOptions, playerName, enemyName, GOBLIN);
-            //        break;
-            //    case 1:
-            //        //ShowInstructions();
-            //        break;
-            //    case 2:
-            //        break;
-            //}
+            switch (selectedOption)
+            {
+                case 0:
+                    Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, dogEnemy);
+                    break;
+                case 1:
+                    //ShowInstructions();
+                    break;
+                case 2:
+                    break;
+            }
         }
     }
 

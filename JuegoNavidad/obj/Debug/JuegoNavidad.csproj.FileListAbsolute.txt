@@ -25,3 +25,9 @@ C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\magicHit.
 C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\meleeHit2.wav
 C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\meleeHit.wav
 C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\missHit.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\title1LowVolume.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\thunderSound.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\insertCoin.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\powerOut.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\switch.wav
+C:\Users\gabri\source\repos\JuegoNavidad\JuegoNavidad\bin\Debug\Sounds\beepBoop.wav
