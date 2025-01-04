@@ -12,16 +12,7 @@ namespace JuegoNavidad
         static SoundPlayer barReboundSound = new SoundPlayer(@"Sounds\barRebound.wav");
         static SoundPlayer brickReboundSound = new SoundPlayer(@"Sounds\brickRebound.wav");
         static SoundPlayer gameOverSound = new SoundPlayer(@"Sounds\gameOver.wav");
-        static SoundPlayer menuSelectSound = new SoundPlayer(@"Sounds\menuSelect.wav");
-        static SoundPlayer menuAcceptSound = new SoundPlayer(@"Sounds\menuAccept.wav");
-        static SoundPlayer textClickSound = new SoundPlayer(@"Sounds\textClickSound.wav");
-        static SoundPlayer magicHitSound = new SoundPlayer(@"Sounds\magicHit.wav");
-        static SoundPlayer meleeHitSound = new SoundPlayer(@"Sounds\meleeHit.wav");
-        static SoundPlayer meleeHitSound2 = new SoundPlayer(@"Sounds\meleeHit2.wav");
-        static SoundPlayer missHitSound = new SoundPlayer(@"Sounds\missHit.wav");
-        static SoundPlayer potionSound = new SoundPlayer(@"Sounds\potionSound.wav");
-        static SoundPlayer title1Sound = new SoundPlayer(@"Sounds\title1.wav");
-        static SoundPlayer title2Sound = new SoundPlayer(@"Sounds\title2.wav");
+        
         static int rows = 5;
         static int cols = (Console.WindowWidth / 4) + 1;
         static int brickWidth = 4;
@@ -45,23 +36,20 @@ namespace JuegoNavidad
         const int POTION_HEALING_AMMOUNT = 50;
         const int MANA_RECOVER_AMMOUNT = 50;
 
-        const string SCENERY_1 = @"
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢻⣿⣿⢻⣫⡵⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣯⣟⡟⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠘⢿⣿⠿⠻⣄⠿⠓⠉⠁⢀⠉⠛⠿⢿⣿⣿⣿⣿⣿⣷⣄⣩⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⣡⡀⠀⠈⠙⠂⠀⠀⠀⠀⠀⠀⣻⣿⣷⣶⣤⣈⡙⠛⠿⢿⠟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣐⠁⠀⠀⠀⠀⠀⠀⠀⣀⡀⠀⠀⣿⣿⡿⣿⣿⠙⠛⣳⣦⣴⣾⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠨⠉⠢⠈⠀⠀⠀⠀⠀⠀⠈⠙⣷⡶⢭⣍⡉⠀⠀⠀⠀⡀⠀⠉⠛⠻⢿⣿⣦⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠤⢀⠀⢰⠀⠈⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠺⠿⢽⣔⣀⡠⠿⣷⣶⣶⣤⣀⣀⠉⠙⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠋⡈⣻⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⠀⠀⠘⠠⠀⠀⠀⠄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣄⠀⣀⠀⠀⠀⠉⠉⠒⠒⢭⢝⣛⡻⠿⢶⣶⣤⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣽⣞⣻⣻⣿⣿⣿⣿⠿⠛⠋⠀⠀⠀⠀⠠⠀⠀⠀⠀⠀⠂⡄⠀⠀⡀⢀⣠⣿⣿⣿⣿⣿⣿⣚⣃⢲⣦⣤⢀⣄⠀⠀⠈⠉⠁⠂⠈⠉⠉⠉⠀⠀⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⢶⡻⣟⣽⣿⣿⣿⣶⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠀⠀⠀⠃⠀⠀⣈⢾⠿⣻⣻⣻⣟⣿⣿⣿⢿⣿⣿⣿⣶⣦⣿⣿⠟⠀⠀⠀⠀⠀⠀⠀⠀⣼⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⢚⣿⣾⣟⠻⢯⣛⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠐⠳⡛⡿⡿⠿⠿⠿⠿⢿⣶⣶⣆⣀⣉⡁⠀⠀⠀⠀⠀⠀⠀⢀⣼⣵⣿⣿⣷⡽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠨⠟⢛⣉⡀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣔⣶⣶⣿⣿⣭⣶⣿⣿⣿⣿⣿⣮⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠶⢲⣴⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠈⠉⠉⠉⠈⠈⠑⠓⠙⠒⣛⣛⣛⣛⣛⣟⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠖⠒⠒⠒⠖⠶⠶⠶⠶⠶⠶⠖⠒⠆⠶⠾⠿⠿⠧⠤⠭⠭⠭⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠼⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⡉⠛⣙⢿⣿⣀⣿⣿
-⡴⣴⡴⣤⢤⣤⣄⣤⣦⣤⢢⣤⣤⣴⣤⣴⣤⢴⣤⣀⡄⣤⡄⣤⡄⣤⣠⣤⢠⣤⢤⡄⣤⣤⣤⢠⣄⣤⣠⣄⢤⡤⣤⣠⣄⢤⣄⣤⡠⣤⢤⣤⣤⣤⣄⣤⡠⣄⢤⣤⣤⣤⣤⣤⣤⣤⣤⣤⡤⣤⢤⡤⣤⢄⠀⣀⢀⡄⣤⢠
-⠚⠫⠚⠋⠛⠫⠞⠫⠟⠻⠟⠫⠟⠛⠿⠛⠿⠛⠿⠛⠿⠛⠿⠛⠿⠛⠏⠛⠯⠛⠯⠛⠿⠛⠿⠟⠿⠎⠟⠿⠻⠙⠺⠻⠿⠟⠿⠟⠟⠺⠟⠿⠟⠿⠾⠿⢿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠷⠿⠿⠿⠿
-";
+        // Sounds
+        static SoundPlayer menuSelectSound = new SoundPlayer(@"Sounds\menuSelect.wav");
+        static SoundPlayer menuAcceptSound = new SoundPlayer(@"Sounds\menuAccept.wav");
+        static SoundPlayer textClickSound = new SoundPlayer(@"Sounds\textClickSound.wav");
+        static SoundPlayer magicHitSound = new SoundPlayer(@"Sounds\magicHit.wav");
+        static SoundPlayer meleeHitSound = new SoundPlayer(@"Sounds\meleeHit.wav");
+        static SoundPlayer meleeHitSound2 = new SoundPlayer(@"Sounds\meleeHit2.wav");
+        static SoundPlayer missHitSound = new SoundPlayer(@"Sounds\missHit.wav");
+        static SoundPlayer potionSound = new SoundPlayer(@"Sounds\potionSound.wav");
+        static SoundPlayer title1Sound = new SoundPlayer(@"Sounds\title1.wav");
+        static SoundPlayer title2Sound = new SoundPlayer(@"Sounds\title2.wav");
+
+        // Drawings
+       
         const string CSKINGDOM = @"
  ____ ____ _  _ ____ ____ ___      
  |___ ==== |--| |--| |--< |--'
@@ -138,6 +126,31 @@ _  _ _ __ _ ____ ___  ____ _  _
                             \\  /V|V\
                              \|/  |  \
                               '--' `--`
+";
+
+        const string FRIENDLY_WIZARD = @"
+                    ____ 
+                  .'* *.'
+               __/_*_*(_
+              / _______ \
+             _\_)/___\(_/_ 
+            / _((\- -/))_ \
+            \ \())(-)(()/ /
+             ' \(((()))/ '
+            / ' \)).))/ ' \
+           / _ \ - | - /_  \
+          (   ( .;''';. .'  )
+          _\""__ /    )\ __""/_
+            \/  \   ' /  \/
+             .'  '...' ' )
+              / /  |  \ \
+             / .   .   . \
+            /   .     .   \
+           /   /   |   \   \
+         .'   /    b    '.  '.
+     _.-'    /     Bb     '-. '-._ 
+ _.-'       |      BBb       '-.  '-. 
+(________mrf\____.dBBBb.________)____)
 ";
 
         const string SKELETON = @"
@@ -386,6 +399,8 @@ _N\ |(`\ |___
             Console.Clear();
         }
 
+        // CSKingdom
+
         // UI
         public static int SelectMainMenu(string[] options)
         {
@@ -472,9 +487,13 @@ _N\ |(`\ |___
                 }
             }
         }
-        public static void DrawUI(int x, int y, int width, int height, char character)
+        public static void DrawUI()
         {
-            DrawRectangle(x, y, width, height, character);
+            DrawRectangle(5, 0, Console.WindowWidth - 11, Console.WindowHeight - 10, '▓'); //Main Frame
+            DrawRectangle(5, 34, 37, 8, '▓');//First frame - option selection frame
+            DrawRectangle(42, 34, 73, 8, '▓');//Second frame - info frame
+            DrawRectangle(115, 34, 49, 8, '▓');//Third frame - Game Logo
+            DrawTextLines(125, 35, 0, CSKINGDOM);
         }
 
         public static void DrawTransition1()
@@ -848,20 +867,50 @@ _N\ |(`\ |___
         public static void DisplayHealth(int playerHealth, int computerHealth, string playerName, string enemyName)
         {
             EraseText(45, 35, 0, 70, 1);
-            DrawText(46, 35, 0, $"{playerName}: {playerHealth}");
-            DrawText(92, 35, 0, $"{enemyName}: {computerHealth}");
+            if (playerHealth >= 70)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                DrawText(46, 35, 0, $"{playerName}: {playerHealth}");
+            }
+            else if (playerHealth < 70 && playerHealth >= 40)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                DrawText(46, 35, 0, $"{playerName}: {playerHealth}");
+            }
+            else if (playerHealth <= 30)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                DrawText(46, 35, 0, $"{playerName}: {playerHealth}");
+            }
+
+            if (computerHealth >= 70)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                DrawText(92, 35, 0, $"{enemyName}: {computerHealth}");
+            }
+            else if (computerHealth < 70 && computerHealth >= 40)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                DrawText(92, 35, 0, $"{enemyName}: {computerHealth}");
+            }
+            else if (computerHealth <= 30)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                DrawText(92, 35, 0, $"{enemyName}: {computerHealth}");
+            }
+
+            
+            Console.ResetColor();
         }
 
         public static bool Battle(Random generator, ref int playerHealth, ref int playerMana, ref int computerHealth, int[] playerInventory, string[] options, string playerName, string[] enemy)
         {
             string enemyDrawing = enemy[0];
             string enemyName = enemy[1];
-            
+            DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
             DrawEnemy(Console.WindowWidth / 2, (Console.WindowHeight / 2) - 15, enemyDrawing);
             DrawText(15, 5, 0, enemyName);
             DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[2]);
-            DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
-
 
             bool win = false;
             bool defeat = false;
@@ -909,66 +958,42 @@ _N\ |(`\ |___
                         DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[6]);//Display enemy victory message
                     }
                     BattleEndMessage($"Enhorabuena! ¡Has derrotado a {enemyName}!", $"¡Fin del juego! ¡{enemyName} te ha derrotado!", win);
+                    CorrectHealth(ref playerHealth, ref computerHealth);
                     DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                 }
             }
             return win;
         }
-        // Validate user input
-        public static string ValidateUserInput(string[] choicesArray)
-        {
-            bool validChoice = false;
-            string playerChoice;
-
-            do
-            {
-                for (int i = 0; i < choicesArray.Length; i++)
-                {
-                    Console.WriteLine($"{i + 1}. {choicesArray[i]}");
-                }
-                Console.Write("Choose one option: ");
-
-                playerChoice = Console.ReadLine();
-
-                for (int i = 0; i < choicesArray.Length && !validChoice; i++)
-                {
-                    validChoice = playerChoice == (i + 1).ToString();
-                }
-
-                if (!validChoice)
-                {
-                    Console.WriteLine($"You must enter a number between 1 and {choicesArray.Length}");
-                }
-            } while (!validChoice);
-            return playerChoice;
-        }
+       
+        
 
         // Menu options
         static string[] playerBattleOptions = { $"Ligero ({LIGHT_ATTACK_PROBABILITY}% éxito, {LIGHT_ATTACK_DAMAGE} daño)", $"Medio ({MEDIUM_ATTACK_PROBABILITY}% éxito, {MEDIUM_ATTACK_DAMAGE} daño)", $"Pesado ({HEAVY_ATTACK_PROBABILITY}% éxito, {HEAVY_ATTACK_DAMAGE} daño)", $"Poción (recupera {POTION_HEALING_AMMOUNT} de salud)" };
         static string[] mainMenuOptions = { "Nueva partida", "Instrucciones", "Salir" };
+        // Enemies arrays
         static string[] skeletonEnemy = { SKELETON, "Esqueleto", "¡Hola! ¿Nos damos unas hostias, o qué?", "¡Ayy! ¡Eso duele!", "¿Cómo puedes fallar eso?", "La oscuridad se cierne sobre mí... ¡adios!", "¡Debilucho! ¡Menudo saco de huesos! ¡JÁ!" };
         static string[] goblinEnemy = { GOBLIN, "Goblin", "¡Pequeño pero matón!", "Ouch!", "Pringao!", "No era necesario...", "Ya te lo dije... ¡matón, matón!" };
-        static string[] knightEnemy = { KNIGHT, "Caballero",  "¡Un mequetrefe! ¡Prendedle!", "No me duele >:D", "¡Buena! Espera... le querías dar al aire, ¿no?", "Era broma... sí que dolía, ayy..", "Suenan las trompetas..." };
-
+        static string[] knightEnemy = { KNIGHT, "Caballero", "¡Un mequetrefe! ¡Prendedle!", "No me duele >:D", "¡Buena! Espera... le querías dar al aire, ¿no?", "Era broma... sí que dolía, ayy..", "¡Ale! ¡Prendido!" };
+        static string[] dogEnemy = { DOG, "Perro", "¡Guau, guau! Efectivamente, soy un perro que pelea.", "¡AING AING AING!", "*mueve el rabo*", "*se va al cielo de los perros*", "*te mea*" };
         static void Main()
         {
-            //Recommended font: Cascadia Mono
+            // Recommended font: Cascadia Mono
+            // Window size
             Console.CursorVisible = false;
             Console.SetWindowSize(170, 44);
             Console.SetBufferSize(171, 45);
 
+            // Player stats
             int playerHealth = 100;
             int playerMana = 100;
             int playerGold = 100;
+            int[] playerInventory = new int[5];
+            playerInventory[0] = 2; // Health potions
+            playerInventory[1] = 2; // Mana potions
+
+            string playerName;
 
             int computerHealth = 100;
-
-            int[] playerInventory = new int[5];
-            playerInventory[0] = 2;
-            playerInventory[1] = 2;
-
-            string playerName = "HieN";
-
             Random generator = new Random();
 
             //int selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
@@ -978,13 +1003,9 @@ _N\ |(`\ |___
             //Arkanoid();
 
             //UI
-            DrawRectangle(5, 0, Console.WindowWidth - 11, Console.WindowHeight - 10, '▓'); //Main Frame
-            DrawRectangle(5, 34, 37, 8, '▓');//First frame - option selection frame
-            DrawRectangle(42, 34, 73, 8, '▓');//Second frame - info frame
-            DrawRectangle(115, 34, 49, 8, '▓');//Third frame - Game Logo
-            DrawTextLines(125, 35, 0, CSKINGDOM);
+            DrawUI();
 
-            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, skeletonEnemy);
+            //Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, dogEnemy);
             Console.ReadLine();
 
             //switch (selectedOption)
@@ -998,11 +1019,6 @@ _N\ |(`\ |___
             //    case 2:
             //        break;
             //}
-
-
-
-            //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 4, goblin); 
-            //DrawEnemy(Console.WindowWidth / 2, Console.WindowHeight / 2, dog);
         }
     }
 
