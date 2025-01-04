@@ -673,8 +673,9 @@ _N\ |(`\ |___
         }
 
         // Battle
-        public static void PlayerTurn(int playerChoice, int[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, ref int playerMana, string enemyName, string playerName)
+        public static void PlayerTurn(int playerChoice, int[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, ref int playerMana, string[] enemy, string playerName)
         {
+            string enemyName = enemy[1];
             bool success = false;
             bool attack = false;
             int chosenAttackDamage = 0;
@@ -684,7 +685,7 @@ _N\ |(`\ |___
                 case 0:
                     attack = true;
                     success = generator.Next(1, 101) <= LIGHT_ATTACK_PROBABILITY;
-                    playerAttack = "Light Strike";
+                    playerAttack = "Golpe ligero";
                     if (success)
                     {
                         computerHealth -= LIGHT_ATTACK_DAMAGE;
@@ -694,7 +695,7 @@ _N\ |(`\ |___
                 case 1:
                     attack = true;
                     success = generator.Next(1, 101) <= MEDIUM_ATTACK_PROBABILITY;
-                    playerAttack = "Medium Strike";
+                    playerAttack = "Golpe medio";
                     if (success)
                     {
                         computerHealth -= MEDIUM_ATTACK_DAMAGE;
@@ -704,7 +705,7 @@ _N\ |(`\ |___
                 case 2:
                     attack = true;
                     success = generator.Next(1, 101) <= HEAVY_ATTACK_PROBABILITY;
-                    playerAttack = "Heavy Strike";
+                    playerAttack = "Golpe pesado";
                     if (success)
                     {
                         computerHealth -= HEAVY_ATTACK_DAMAGE;
@@ -714,48 +715,58 @@ _N\ |(`\ |___
                 case 3:
                     if (playerInventory[0] > 0)
                     {
-                        DrawText(50, 38, 0, $"{playerName} used a  health potion and healed {POTION_HEALING_AMMOUNT}!");
+                        DrawText(50, 38, 0, $"¡{playerName} ha usado una poción de vitalidad y ha recuperado {POTION_HEALING_AMMOUNT}!");
                         playerHealth += POTION_HEALING_AMMOUNT;
+                        potionSound.Play();
                         CorrectHealth(ref playerHealth, ref computerHealth);
                         DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                     }
                     else
                     {
-                        DrawText(50, 38, 0, $"{playerName} doesn't have any health potion left!");
+                        DrawText(50, 38, 0, $"¡A {playerName} no le quedan pociones de vitalidad!");
                     }
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     break;
                 case 4:
+                    EraseText(50, 38, 0, 65, 1);
+                    EraseText(50, 40, 0, 65, 1);
                     if (playerInventory[1] > 0)
                     {
-                        DrawText(50, 38, 0, $"{playerName} used a mana potion and recovered {MANA_RECOVER_AMMOUNT}!");
+                        DrawText(50, 38, 0, $"¡{playerName} ha usado una poción de maná y ha recuperado {MANA_RECOVER_AMMOUNT}!");
                         playerMana += MANA_RECOVER_AMMOUNT;
                         
                     }
                     else
                     {
-                        DrawText(50, 38, 0, $"{playerName} doesn't have any mana potion left!");
+                        DrawText(50, 38, 0, $"¡A {playerName} no le quedan pociones de maná!");
                     }
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     break;
             }
             EraseText(50, 38, 0, 65, 1);
+            EraseText(50, 40, 0, 65, 1);
             if (attack)
             {
-                DrawText(50, 38, 0, $"{playerName} attacks with a {playerAttack}!");
+                DrawText(50, 38, 0, $"¡{playerName} ataca con un {playerAttack}!");
             }
             
             if (success)
             {
-                meleeHitSound.Play();
+                meleeHitSound2.Play();
+                Thread.Sleep(300);
                 EraseText(50, 40, 0, 65, 1);
-                DrawText(50, 40, 0, $"Attack successful! You dealt {chosenAttackDamage} damage to {enemyName}.");
+                EraseText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 0, 65, 1);
+                DrawText(50, 40, 0, $"¡Diana! Le has hecho {chosenAttackDamage} de daño a {enemyName}.");
+                DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[3]);
             }
             else if (attack)
             {
                 missHitSound.Play();
+                Thread.Sleep(300);
                 EraseText(50, 40, 0, 65, 1);
-                DrawText(50, 40, 0, "Attack missed!");
+                EraseText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 0, 65, 1);
+                DrawText(50, 40, 0, "¡Has fallado!");
+                DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[4]);
             }
         }
 
@@ -768,7 +779,7 @@ _N\ |(`\ |___
             switch (computerChoice)
             {
                 case 1:
-                    computerAttack = "Light Strike";
+                    computerAttack = "Golpe ligero";
                     success = generator.Next(1, 101) <= LIGHT_ATTACK_PROBABILITY;
                     if (success)
                     {
@@ -777,7 +788,7 @@ _N\ |(`\ |___
                     }
                     break;
                 case 2:
-                    computerAttack = "Medium Strike";
+                    computerAttack = "Golpe medio";
                     success = generator.Next(1, 101) <= MEDIUM_ATTACK_PROBABILITY;
                     if (success)
                     {
@@ -786,7 +797,7 @@ _N\ |(`\ |___
                     }
                     break;
                 case 3:
-                    computerAttack = "Heavy Strike";
+                    computerAttack = "Golpe fuerte";
                     success = generator.Next(1, 101) <= HEAVY_ATTACK_PROBABILITY;
                     if (success)
                     {
@@ -796,18 +807,18 @@ _N\ |(`\ |___
                     break;
             }
             EraseText(50, 38, 0, 65, 1);
-            DrawText(50, 38, 0, $"{enemyName} attacks with a {computerAttack}!");
+            DrawText(50, 38, 0, $"{enemyName} ataca con un {computerAttack}!");
             if (success)
             {
-                meleeHitSound2.Play();
+                meleeHitSound.Play();
                 EraseText(50, 40, 0, 65, 1);
-                DrawText(50, 40, 0, $"Attack successful! {enemyName} deals {chosenAttackDamage} damage to you.");
+                DrawText(50, 40, 0, $"¡Diana! {enemyName} te hace {chosenAttackDamage} de daño.");
             }
             else
             {
                 missHitSound.Play();
                 EraseText(50, 40, 0, 65, 1);
-                DrawText(50, 40, 0, $"{enemyName} attack missed!");
+                DrawText(50, 40, 0, $"¡{enemyName} ha fallado!");
             }
         }
 
@@ -823,7 +834,9 @@ _N\ |(`\ |___
 
         public static void BattleEndMessage(string victoryMessage, string defeatMessage, bool win)
         {
-            DrawText((Console.WindowWidth / 2) - 5, (Console.WindowHeight / 2) + 10, 10, win ? victoryMessage : defeatMessage);
+            EraseText(50, 38, 0, 65, 1);
+            EraseText(50, 40, 0, 65, 1);
+            DrawText(50, 39, 10, win ? victoryMessage : defeatMessage);
         }
 
         public static void CorrectHealth(ref int playerHealth, ref int computerHealth)
@@ -835,14 +848,20 @@ _N\ |(`\ |___
         public static void DisplayHealth(int playerHealth, int computerHealth, string playerName, string enemyName)
         {
             EraseText(45, 35, 0, 70, 1);
-            DrawText(46, 35, 0, $"{playerName} health: {playerHealth}");
-            DrawText(92, 35, 0, $"{enemyName} health: {computerHealth}");
+            DrawText(46, 35, 0, $"{playerName}: {playerHealth}");
+            DrawText(92, 35, 0, $"{enemyName}: {computerHealth}");
         }
 
-        public static bool Battle(Random generator, ref int playerHealth, ref int playerMana, ref int computerHealth, int[] playerInventory, string[] options, string playerName, string enemyName, string enemyDrawing)
+        public static bool Battle(Random generator, ref int playerHealth, ref int playerMana, ref int computerHealth, int[] playerInventory, string[] options, string playerName, string[] enemy)
         {
+            string enemyDrawing = enemy[0];
+            string enemyName = enemy[1];
+            
             DrawEnemy(Console.WindowWidth / 2, (Console.WindowHeight / 2) - 15, enemyDrawing);
             DrawText(15, 5, 0, enemyName);
+            DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[2]);
+            DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
+
 
             bool win = false;
             bool defeat = false;
@@ -852,7 +871,7 @@ _N\ |(`\ |___
             {
                 playerChoice = Select(6, 36, options);
 
-                PlayerTurn(playerChoice, playerInventory, generator, ref computerHealth, ref playerHealth, ref playerMana, enemyName, playerName);
+                PlayerTurn(playerChoice, playerInventory, generator, ref computerHealth, ref playerHealth, ref playerMana, enemy, playerName);
 
                 if (computerHealth > 0)
                 {
@@ -876,10 +895,20 @@ _N\ |(`\ |___
                     defeat = ComputerWon(playerHealth);
                     
                 }
-
+                
                 if (win || defeat)
                 {
-                    BattleEndMessage($"Congratulations! You defeated {enemyName}!\n", $"Game over! {enemyName} wins!\n", win);
+                    if (win)
+                    {
+                        EraseText(50, 40, 0, 65, 1);
+                        DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[5]);//Display enemy defeat message
+                    }
+                    else
+                    {
+                        EraseText(50, 40, 0, 65, 1);
+                        DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[6]);//Display enemy victory message
+                    }
+                    BattleEndMessage($"Enhorabuena! ¡Has derrotado a {enemyName}!", $"¡Fin del juego! ¡{enemyName} te ha derrotado!", win);
                     DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
                 }
             }
@@ -915,8 +944,11 @@ _N\ |(`\ |___
         }
 
         // Menu options
-        static string[] playerBattleOptions = { $"Light ({LIGHT_ATTACK_PROBABILITY}% success, {LIGHT_ATTACK_DAMAGE} damage)", $"Medium ({MEDIUM_ATTACK_PROBABILITY}% success, {MEDIUM_ATTACK_DAMAGE} damage)", $"Heavy ({HEAVY_ATTACK_PROBABILITY}% success, {HEAVY_ATTACK_DAMAGE} damage)", $"Potion (recover {POTION_HEALING_AMMOUNT} health points)" };
-        static string[] mainMenuOptions = { "New Game", "Instructions", "Exit" };
+        static string[] playerBattleOptions = { $"Ligero ({LIGHT_ATTACK_PROBABILITY}% éxito, {LIGHT_ATTACK_DAMAGE} daño)", $"Medio ({MEDIUM_ATTACK_PROBABILITY}% éxito, {MEDIUM_ATTACK_DAMAGE} daño)", $"Pesado ({HEAVY_ATTACK_PROBABILITY}% éxito, {HEAVY_ATTACK_DAMAGE} daño)", $"Poción (recupera {POTION_HEALING_AMMOUNT} de salud)" };
+        static string[] mainMenuOptions = { "Nueva partida", "Instrucciones", "Salir" };
+        static string[] skeletonEnemy = { SKELETON, "Esqueleto", "¡Hola! ¿Nos damos unas hostias, o qué?", "¡Ayy! ¡Eso duele!", "¿Cómo puedes fallar eso?", "La oscuridad se cierne sobre mí... ¡adios!", "¡Debilucho! ¡Menudo saco de huesos! ¡JÁ!" };
+        static string[] goblinEnemy = { GOBLIN, "Goblin", "¡Pequeño pero matón!", "Ouch!", "Pringao!", "No era necesario...", "Ya te lo dije... ¡matón, matón!" };
+        static string[] knightEnemy = { KNIGHT, "Caballero",  "¡Un mequetrefe! ¡Prendedle!", "No me duele >:D", "¡Buena! Espera... le querías dar al aire, ¿no?", "Era broma... sí que dolía, ayy..", "Suenan las trompetas..." };
 
         static void Main()
         {
@@ -927,7 +959,7 @@ _N\ |(`\ |___
 
             int playerHealth = 100;
             int playerMana = 100;
-            int playerStrength = 5;
+            int playerGold = 100;
 
             int computerHealth = 100;
 
@@ -936,7 +968,6 @@ _N\ |(`\ |___
             playerInventory[1] = 2;
 
             string playerName = "HieN";
-            string enemyName = "Patatones";
 
             Random generator = new Random();
 
@@ -953,7 +984,7 @@ _N\ |(`\ |___
             DrawRectangle(115, 34, 49, 8, '▓');//Third frame - Game Logo
             DrawTextLines(125, 35, 0, CSKINGDOM);
 
-            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, enemyName, SKELETON);
+            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, skeletonEnemy);
             Console.ReadLine();
 
             //switch (selectedOption)
