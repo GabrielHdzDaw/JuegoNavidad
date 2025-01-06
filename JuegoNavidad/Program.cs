@@ -133,23 +133,7 @@ namespace JuegoNavidad
                 thread.Join();
             }
         }
-        // Arkanoid vars
-        static SoundPlayer barReboundSound = new SoundPlayer(@"Sounds\barRebound.wav");
-        static SoundPlayer brickReboundSound = new SoundPlayer(@"Sounds\brickRebound.wav");
-        static SoundPlayer gameOverSound = new SoundPlayer(@"Sounds\gameOver.wav");
-
-        static int rows = 5;
-        static int cols = (Console.WindowWidth / 4) + 1;
-        static int brickWidth = 4;
-        static int brickHeight = 1;
-        static int barX;
-        static int barY;
-        static int ballX;
-        static int ballY;
-        static int dx = 1;
-        static int dy = 1;
-        static bool running = true;
-        static bool gameOver = false;
+        
 
         // CSKingdom vars
         const int LIGHT_ATTACK_DAMAGE = 10;
@@ -180,6 +164,30 @@ namespace JuegoNavidad
         static SoundPlayer beepBoopSound = new SoundPlayer(@"Sounds\beepBoop.wav");
 
         // Drawings
+        const string SUN = @"
+   ,    /),
+  (( -.((_))  _,)
+  ,\`.'_  _`-','
+  `.> <> <>  (,-
+ ,',    |     `._,)
+((  )   |,   (`--'
+ `'( ) _--_,-.\
+    /,' \( )  `'
+   ((    `\
+    `
+";
+        const string FOREST = @"
+            ,@@@@@@@,
+    ,,,.   ,@@@@@@/@@,  .oo8888o.
+ ,&%%&%&&%,@@@@@/@@@@@@,8888\88/8o
+,%&\%&&%&&%,@@@\@@@/@@@88\88888/88'
+%&&%&%&/%&&%@@\@@/ /@@@88888\88888'
+%&&%/ %&%%&&@@\ V /@@' `88\8 `/88'
+`&%\ ` /%&'    |.|        \ '|8'
+    |o|        | |         | |
+    |.|        | |         | |
+ \\/ ._\//_/__/  ,\_//__\\/.  \_//__/_   
+";
         const string VILLAGE = @"
   ~         ~~          __
        _T      .,,.    ~--~ ^^
@@ -192,6 +200,40 @@ __/_  /   \ ______/ ''   /'\_,__
 :' |  | []  -|   ''--:.;[,.'\,/
 '  |[]|,.--'' '',   ''-,.    |
   ..    ..-''    ;       ''. '  
+";
+        const string CASTLE = @"
+ [][][] /""\ [][][]
+  |::| /____\ |::|
+  |[]|_|::::|_|[]|
+  |::::::__::::::|
+  |:::::/||\:::::|
+  |:#:::||||::#::|
+ #%*###&*##&*&#*&##
+##%%*####*%%%###*%*#
+";
+        const string CASTLE_SCENE = @"
+                           o                    
+                       _---|         _ _ _ _ _ 
+                    o   ---|     o   ]-I-I-I-[ 
+   _ _ _ _ _ _  _---|      | _---|    \ ` ' / 
+   ]-I-I-I-I-[   ---|      |  ---|    |.   | 
+    \ `   '_/       |     / \    |    | /^\| 
+     [*]  __|       ^    / ^ \   ^    | |*|| 
+     |__   ,|      / \  /    `\ / \   | ===| 
+  ___| ___ ,|__   /    /=_=_=_=\   \  |,  _|
+  I_I__I_I__I_I  (====(_________)___|_|____|____
+  \-\--|-|--/-/  |     I  [ ]__I I_I__|____I_I_| 
+   |[]      '|   | []  |`__  . [  \-\--|-|--/-/  
+   |.   | |' |___|_____I___|___I___|---------| 
+  / \| []   .|_|-|_|-|-|_|-|_|-|_|-| []   [] | 
+ <===>  |   .|-=-=-=-=-=-=-=-=-=-=-|   |    / \  
+ ] []|`   [] ||.|.|.|.|.|.|.|.|.|.||-      <===> 
+ ] []| ` |   |/////////\\\\\\\\\\.||__.  | |[] [ 
+ <===>     ' ||||| |   |   | ||||.||  []   <===>
+  \T/  | |-- ||||| | O | O | ||||.|| . |'   \T/ 
+   |      . _||||| |   |   | ||||.|| |     | |
+../|' v . | .|||||/____|____\|||| /|. . | . ./
+.|//\............/...........\........../../\\\
 ";
         const string HANGED_1 = @"
  +---+
@@ -635,6 +677,24 @@ _N\ |(`\ |___
       <\\\)     (///>
 ";
         // Arkanoid
+
+        // Arkanoid vars
+        static SoundPlayer barReboundSound = new SoundPlayer(@"Sounds\barRebound.wav");
+        static SoundPlayer brickReboundSound = new SoundPlayer(@"Sounds\brickRebound.wav");
+        static SoundPlayer gameOverSound = new SoundPlayer(@"Sounds\gameOver.wav");
+
+        static int rows = 5;
+        static int cols = (Console.WindowWidth / 4) + 1;
+        static int brickWidth = 4;
+        static int brickHeight = 1;
+        static int barX;
+        static int barY;
+        static int ballX;
+        static int ballY;
+        static int dx = 1;
+        static int dy = 1;
+        static bool running = true;
+        static bool gameOver = false;
         public static void DrawBrick(int x, int y)
         {
             Console.SetCursorPosition(x, y);
@@ -1611,28 +1671,33 @@ y resolver puzzles y acertijos para obtener La Llave del
             int computerHealth = 100;
             Random generator = new Random();
 
-            IntroScene(playerName);
-
-            WizardScene(playerName);
+            //IntroScene(playerName);
+            //DrawMainMenu(mainMenuOptions, TITLE);
+            
             
             int selectedOption = -1;
-            //Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, dogEnemy);
-            //do
-            //{
-            //    selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
-            //    switch (selectedOption)
-            //    {
-            //        case 0:
-            //            DrawUI();
-            //            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, knightEnemy);
-            //            break;
-            //        case 1:
-            //            ShowInstructions();
-            //            break;
-            //        case 2:
-            //            break;
-            //    }
-            //} while (selectedOption != 0 || selectedOption == 2);
+            
+            bool exit = false;
+            do
+            {
+                selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
+                switch (selectedOption)
+                {
+                    case 0:
+                        WizardScene(playerName);
+                        DrawUI();
+                       
+                        break;
+                    case 1:
+                        ShowInstructions();
+                        break;
+                    case 2:
+                        exit = true;
+                        break;
+                }
+            } while (selectedOption != 0 && !exit);
+
+            //Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, knightEnemy);
         }
     }
 }
