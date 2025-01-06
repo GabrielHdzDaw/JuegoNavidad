@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Media;
 using System.Text;
 using System.Threading;
@@ -164,17 +165,18 @@ namespace JuegoNavidad
         static SoundPlayer beepBoopSound = new SoundPlayer(@"Sounds\beepBoop.wav");
 
         // Drawings
-        const string SUN = @"
-   ,    /),
-  (( -.((_))  _,)
-  ,\`.'_  _`-','
-  `.> <> <>  (,-
- ,',    |     `._,)
-((  )   |,   (`--'
- `'( ) _--_,-.\
-    /,' \( )  `'
-   ((    `\
-    `
+
+        const string BEACH = @"
+          |
+        \ _ /
+      -= (_) =-
+        /   \         _\/_
+          |           //o\  _\/_
+   _____ _ __ __ ____ _ | __/o\\ _
+ =-=-_-__=_-= _=_=-=_,-'|""'""""-|-,_
+  =- _=-=- -_=-=_,-""          |
+    =- =- -=.--""
+              Playa
 ";
         const string FOREST = @"
             ,@@@@@@@,
@@ -186,7 +188,24 @@ namespace JuegoNavidad
 `&%\ ` /%&'    |.|        \ '|8'
     |o|        | |         | |
     |.|        | |         | |
- \\/ ._\//_/__/  ,\_//__\\/.  \_//__/_   
+ \\/ ._\//_/__/  ,\_//__\\/.  \_//__/_  
+              Bosque
+";
+        const string FOREST_SCENE = @"
+    .                  .-.    .  _   *     _   .
+           *          /   \     ((       _/ \       *    .
+         _    .   .--'\/\_ \     `      /    \  *    ___
+     *  / \_    _/ ^      \/\'__        /\/\  /\  __/   \ *
+       /    \  /    .'   _/  /  \  *' /    \/  \/ .`'\_/\   .
+  .   /\/\  /\/ :' __  ^/  ^/    `--./.'  ^  `-.\ _    _:\ _
+     /    \/  \  _/  \-' __/.' ^ _   \_   .'\   _/ \ .  __/ \
+   /\  .-   `. \/     \ / -.   _/ \ -. `_/   \ /    `._/  ^  \
+  /  `-.__ ^   / .-'.--'    . /    `--./ .-'  `-.  `-. `.  -  `.
+@/        `.  / /      `-.   /  .-'   / .   .'   \    \  \  .-  \%
+@&8jgs@@%% @)&@&(88&@.-_=_-=_-=_-=_-=_.8@% &@&&8(8%@%8)(8@%8 8%@)%
+@88:::&(&8&&8:::::%&`.~-_~~-~~_~-~_~-~~=.'@(&%::::%@8&8)::&#@8::::
+`::::::8%@@%:::::@%&8:`.=~~-.~~-.~~=..~'8::::::::&@8:::::&8:::::'
+ `::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::.'
 ";
         const string VILLAGE = @"
   ~         ~~          __
@@ -200,6 +219,31 @@ __/_  /   \ ______/ ''   /'\_,__
 :' |  | []  -|   ''--:.;[,.'\,/
 '  |[]|,.--'' '',   ''-,.    |
   ..    ..-''    ;       ''. '  
+             Aldea
+";
+        const string VILLAGE_SCENE = @"
+                                                           |>>>
+                   _                      _                |
+    ____________ .' '.    _____/----/-\ .' './========\   / \
+   //// ////// /V_.-._\  |.-.-.|===| _ |-----| u    u |  /___\
+  // /// // ///==\ u |.  || | ||===||||| |T| |   ||   | .| u |_ _ _ _ _ _
+ ///////-\////====\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U
+ |----/\u |--|++++|..|'''''''''''::::::::::::::''''''''''|+++|+-+-+-+-+-+
+ |u u|u | |u ||||||..|              '::::::::'           |===|>=== _ _ ==
+ |===|  |u|==|++++|==|              .::::::::.           | T |....| V |..
+ |u u|u | |u ||HH||         \|/    .::::::::::.
+ |===|_.|u|_.|+HH+|_              .::::::::::::.              _
+                __(_)___         .::::::::::::::.         ___(_)__
+---------------/  / \  /|       .:::::;;;:::;;:::.       |\  / \  \-------
+______________/_______/ |      .::::::;;:::::;;:::.      | \_______\________
+|       |     [===  =] /|     .:::::;;;::::::;;;:::.     |\ [==  = ]   |
+|_______|_____[ = == ]/ |    .:::::;;;:::::::;;;::::.    | \[ ===  ]___|____
+     |       |[  === ] /|   .:::::;;;::::::::;;;:::::.   |\ [=  ===] |
+_____|_______|[== = =]/ |  .:::::;;;::::::::::;;;:::::.  | \[ ==  =]_|______
+ |       |    [ == = ] /| .::::::;;:::::::::::;;;::::::. |\ [== == ]      |
+_|_______|____[=  == ]/ |.::::::;;:::::::::::::;;;::::::.| \[  === ]______|_
+   |       |  [ === =] /.::::::;;::::::::::::::;;;:::::::.\ [===  =]   |
+___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\[=  == ]___|_____
 ";
         const string CASTLE = @"
  [][][] /""\ [][][]
@@ -210,6 +254,7 @@ __/_  /   \ ______/ ''   /'\_,__
   |:#:::||||::#::|
  #%*###&*##&*&#*&##
 ##%%*####*%%%###*%*#
+      Castillo
 ";
         const string CASTLE_SCENE = @"
                            o                    
@@ -235,6 +280,8 @@ __/_  /   \ ______/ ''   /'\_,__
 ../|' v . | .|||||/____|____\|||| /|. . | . ./
 .|//\............/...........\........../../\\\
 ";
+
+        static string[] stages = {VILLAGE, CASTLE, FOREST, BEACH};
         const string HANGED_1 = @"
  +---+
  |   |
@@ -668,8 +715,8 @@ _N\ |(`\ |___
   |||   .-.[:|:].-.
   ===_ /\| ""'""  |/
    E]_|\/ \--|-|''''|
-   O  `'  '=[:]| A  |
-          /""""|  P |
+   O  `'  '=[:]| C  |
+          /""""|  S |
          /"""" `.__.'
         []""/"" \[]
         | \     / |
@@ -728,6 +775,7 @@ _N\ |(`\ |___
             }
             return bricks;
         }
+
         public static void BrickCollision(int rows, int cols, bool[,] bricks)
         {
             for (int i = 0; i < rows; i++)
@@ -753,6 +801,7 @@ _N\ |(`\ |___
                 }
             }
         }
+
         public static void MoveBar(ConsoleKeyInfo? key)
         {
             if (key.HasValue)
@@ -952,7 +1001,7 @@ _N\ |(`\ |___
                     Thread.Sleep(100);
                 }
 
-                var key = Console.ReadKey(true);
+                ConsoleKeyInfo key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.UpArrow)
                 {
                     menuSelectSound.Play();
@@ -970,6 +1019,78 @@ _N\ |(`\ |___
                 }
             }
         }
+
+        public static int SelectStage(string[] options)
+        {
+            Console.CursorVisible = false;
+            int selectedOption = 0;
+
+            int horizontalSpacing = 25;
+            int verticalSpacing = 10;
+
+            int centerX = (Console.WindowWidth / 2) - 15;
+            int centerY = (Console.WindowHeight / 2) - 11;
+
+            
+            int[] positionsX = new int[]
+            {
+               centerX - horizontalSpacing,
+               centerX + horizontalSpacing,
+               centerX - horizontalSpacing,
+               centerX + horizontalSpacing
+            };
+
+            int[] positionsY = new int[]
+            {
+           Math.Max(0, centerY - verticalSpacing),
+           Math.Max(0, centerY - verticalSpacing),
+           Math.Min(Console.WindowHeight - 1, centerY + verticalSpacing),
+           Math.Min(Console.WindowHeight - 1, centerY + verticalSpacing)
+            };
+
+            while (true)
+            {
+                
+                for (int i = 0; i < options.Length; i++)
+                {
+                    if (i == selectedOption)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        DrawTextLines(positionsX[i], positionsY[i], 0, options[i]);
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        DrawTextLines(positionsX[i], positionsY[i], 0, options[i]);
+                    }
+                }
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        menuSelectSound.Play();
+                        selectedOption = (selectedOption - 2 >= 0) ? selectedOption - 2 : selectedOption + 2;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        menuSelectSound.Play();
+                        selectedOption = (selectedOption + 2 < options.Length) ? selectedOption + 2 : selectedOption - 2;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        menuSelectSound.Play();
+                        selectedOption = (selectedOption % 2 == 1) ? selectedOption - 1 : selectedOption + 1;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        menuSelectSound.Play();
+                        selectedOption = (selectedOption % 2 == 0) ? selectedOption + 1 : selectedOption - 1;
+                        break;
+                    case ConsoleKey.Enter:
+                        menuAcceptSound.Play();
+                        return selectedOption;
+                }
+            }
+        }
+
         public static void DrawUI()
         {
             DrawRectangle(5, 0, Console.WindowWidth - 11, Console.WindowHeight - 10, '▓'); //Main Frame
@@ -1040,6 +1161,7 @@ _N\ |(`\ |___
             }
             Console.Clear();
         }
+
         public static void DrawText(int x, int y, int timeBetweenKeyStrokes, string text)
         {
             Console.CursorVisible = false;
@@ -1063,12 +1185,13 @@ _N\ |(`\ |___
                 Console.WriteLine("Out of limits");
             }
         }
+
         public static void DrawTextCentered(int x, int y, int timeBetweenKeyStrokes, string text)
         {
             Console.CursorVisible = false;
-            if (y >= 0 && y < Console.WindowHeight) // Validar solo 'y'
+            if (y >= 0 && y < Console.WindowHeight)
             {
-                x = (Console.WindowWidth - text.Length) / 2; // Calcular x para centrar el texto
+                x = (Console.WindowWidth - text.Length) / 2;
                 if (x >= 0 && x + text.Length <= Console.WindowWidth)
                 {
                     Console.SetCursorPosition(x, y);
@@ -1078,19 +1201,12 @@ _N\ |(`\ |___
 
                         if (timeBetweenKeyStrokes > 0)
                         {
+                            Thread.Sleep(timeBetweenKeyStrokes);
                             textClickSound.Play();
                         }
-                        Thread.Sleep(timeBetweenKeyStrokes);
+                        
                     }
                 }
-                else
-                {
-                    Console.WriteLine("Text is too long to fit in the console");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Out of vertical limits");
             }
         }
 
@@ -1105,8 +1221,6 @@ _N\ |(`\ |___
             }
         }
 
-
-
         public static void EraseText(int x, int y, int spaceBetweenKeyStrokes, int spaceX, int spaceY)
         {
             string spaces = new string(' ', spaceX);
@@ -1115,8 +1229,6 @@ _N\ |(`\ |___
                 DrawText(x, y, spaceBetweenKeyStrokes, spaces);
             }
         }
-
-
 
         public static int DrawMainMenu(string[] menuOptions, string title)
         {
@@ -1150,6 +1262,7 @@ _N\ |(`\ |___
             Console.Clear();
             return selectedOption;
         }
+
         public static void DrawRectangle(int x, int y, int width, int height, char character)
         {
             for (int i = 0; i <= height; i++)
@@ -1219,6 +1332,7 @@ _N\ |(`\ |___
                 }
             }
         }
+
         public static void EnterTheKingdomAnimation()
         {
             beepBoopSound.Play();
@@ -1250,6 +1364,7 @@ _N\ |(`\ |___
             DrawTransition1();
             Console.Clear();
         }
+
         public static void IntroScene(string playerName)
         {
             Arkanoid();
@@ -1303,6 +1418,7 @@ _N\ |(`\ |___
             EnterTheKingdomAnimation();
             Thread.Sleep(2000);
         }
+
         public static void ShowInstructions()
         {
             string instructions = @"
@@ -1320,45 +1436,42 @@ y resolver puzzles y acertijos para obtener La Llave del
         public static void WizardScene(string playerName)
         {
             DrawArt((Console.WindowWidth / 2), (Console.WindowHeight / 2) - 20, FRIENDLY_WIZARD);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Hola, {playerName}.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"Hola, {playerName}.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
             DrawArt((Console.WindowWidth / 2), (Console.WindowHeight / 2) - 20, FRIENDLY_WIZARD);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¿Que cómo sé tu nombre? Ja ja ja... ¡Soy un mago! ¿No lo ves?");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"¿Que cómo sé tu nombre? Ja ja ja... ¡Soy un mago! ¿No lo ves?");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"No te asustes. Entiendo que todo esto sea muy nuevo para ti.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"No te asustes. Entiendo que todo esto sea muy nuevo para ti.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Estás dentro de CSHARP KINGDOM.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"Estás dentro de CSHARP KINGDOM.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Te esperan peligros y desafíos a los que no te has enfrentado nunca.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"Te esperan peligros y desafíos a los que no te has enfrentado nunca.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Nuestro reino está en apuros. Solo tú puedes ayudarnos a derrotar al tirano Rey Demonio.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"Nuestro reino está en apuros. Solo tú puedes ayudarnos a derrotar al tirano Rey Demonio.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Deberás conseguir las tres reliquias para poder enfrentarte al Rey Demonio y así conseguir La Llave del Éxito.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"Deberás conseguir las tres reliquias para poder enfrentarte al Rey Demonio y así conseguir La Llave del Éxito.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¿Que por qué tú? Porque solo tú has sido capaz de escuchar nuestra llamada.");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"¿Que por qué tú? Porque solo tú has sido capaz de escuchar nuestra llamada.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¡Eso significa que eres la persona indicada!");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"¡Eso significa que eres la persona indicada!");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
-            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¡Ahora adelante! ¡Ve y consigue La Llave del Éxito!");
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 50, $"¡Ahora adelante! ¡Ve y consigue La Llave del Éxito!");
             Thread.Sleep(2000);
             Console.Clear();
             DrawTransition1();
         }
 
         // Explore
-        public static int SelectStage()
-        {
-            return 3;
-        }
+        
 
 
 
@@ -1649,7 +1762,8 @@ y resolver puzzles y acertijos para obtener La Llave del
         static string[] dogEnemy = { DOG, "Perro", "¡Guau, guau! *arf arf*", "¡AING AING AING!", "*mueve el rabo*", "*se va al cielo de los perros*", "*te mea*" };
         static void Main()
         {
-            // Recommended font: Cascadia Mono
+            
+            // Recommended font: Cascadia Mono - font size 16
             // Window size
             Console.CursorVisible = false;
             Console.SetWindowSize(170, 44);
@@ -1671,12 +1785,12 @@ y resolver puzzles y acertijos para obtener La Llave del
             int computerHealth = 100;
             Random generator = new Random();
 
-            //IntroScene(playerName);
-            //DrawMainMenu(mainMenuOptions, TITLE);
+            IntroScene(playerName);
+            DrawMainMenu(mainMenuOptions, TITLE);
             
             
             int selectedOption = -1;
-            
+
             bool exit = false;
             do
             {
@@ -1686,7 +1800,9 @@ y resolver puzzles y acertijos para obtener La Llave del
                     case 0:
                         WizardScene(playerName);
                         DrawUI();
-                       
+                        SelectStage(stages);
+                        Console.Clear();
+                        DrawUI();
                         break;
                     case 1:
                         ShowInstructions();
@@ -1697,7 +1813,7 @@ y resolver puzzles y acertijos para obtener La Llave del
                 }
             } while (selectedOption != 0 && !exit);
 
-            //Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, knightEnemy);
+            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, knightEnemy);
         }
     }
 }
