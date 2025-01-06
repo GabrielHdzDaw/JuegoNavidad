@@ -180,7 +180,83 @@ namespace JuegoNavidad
         static SoundPlayer beepBoopSound = new SoundPlayer(@"Sounds\beepBoop.wav");
 
         // Drawings
-
+        const string VILLAGE = @"
+  ~         ~~          __
+       _T      .,,.    ~--~ ^^
+ ^^   // \                    ~
+      ][O]    ^^      ,-~ ~
+   /''-I_I         _II____
+__/_  /   \ ______/ ''   /'\_,__
+  | II--'''' \,--:--..,_/,.-{ },
+; '/__\,.--';|   |[] .-.| O{ _ }
+:' |  | []  -|   ''--:.;[,.'\,/
+'  |[]|,.--'' '',   ''-,.    |
+  ..    ..-''    ;       ''. '  
+";
+        const string HANGED_1 = @"
+ +---+
+ |   |
+     |
+     |
+     |
+     |
+=========
+";
+        const string HANGED_2 = @"
+ +---+
+ |   |
+ O   |
+     |
+     |
+     |
+=========
+";
+        const string HANGED_3 = @"
+ +---+
+ |   |
+ O   |
+ |   |
+     |
+     |
+=========
+";
+        const string HANGED_4 = @"
+ +---+
+ |   |
+ O   |
+/|   |
+     |
+     |
+=========
+";
+        const string HANGED_5 = @"
+ +---+
+ |   |
+ O   |
+/|\  |
+     |
+     |
+=========
+";
+        const string HANGED_6 = @"
++ ---+
+ |   |
+ O   |
+/|\  |
+/    |
+     |
+=========
+";
+        const string HANGED_7 = @"
+ +---+
+ |   |
+ O   |
+/|\  |
+/ \  |
+     |
+=========
+";
+        static string[] hangedFrames = { HANGED_1, HANGED_2, HANGED_3, HANGED_4, HANGED_5, HANGED_6, HANGED_7 };
         const string ARCADE_MACHINE_FRAME_1 = @"
   *%%%%%%%%%%%%%%*                                
   :%%%%%%%%%%%%%%:                                
@@ -212,20 +288,20 @@ namespace JuegoNavidad
  .::::::::::::::::. 
 ";
         const string ARCADE_MACHINE_FRAME_3 = @"
-   -%%%%%%%%%%%%%%%%-                               
-    -===============                                
-    .%#.        .#%:                                
-    .%=:#%%%%%%%:=%:                                
-    .%=:#%%%%%%%:=%:                                
-    .%%-        -%%:                                
-    ::::::::::::::::                                
-   %%= ..%%%%%%.. =%%                               
-                                                    
- =%%%%%%%%%%%%%%%%%%%%+                             
-   :****************:                               
-   -%%%%%%%%%%%%%%%%-                               
-   -%%%%%%%%%%%%%%%%-                               
-   +%%%%%%%%%%%%%%%%+    
+  -%%%%%%%%%%%%%%%%-                               
+   -===============                                
+   .%#.        .#%:                                
+   .%=:#%%%%%%%:=%:                                
+   .%=:#%%%%%%%:=%:                                
+   .%%-        -%%:                                
+   ::::::::::::::::                                
+  %%= ..%%%%%%.. =%%                               
+                                                   
+=%%%%%%%%%%%%%%%%%%%%+                             
+  :****************:                               
+  -%%%%%%%%%%%%%%%%-                               
+  -%%%%%%%%%%%%%%%%-                               
+  +%%%%%%%%%%%%%%%%+    
 ";
         const string ARCADE_MACHINE_FRAME_4 = @"
    ::::::::::::::::                                
@@ -904,7 +980,6 @@ _N\ |(`\ |___
             }
             Console.Clear();
         }
-
         public static void DrawText(int x, int y, int timeBetweenKeyStrokes, string text)
         {
             Console.CursorVisible = false;
@@ -918,13 +993,44 @@ _N\ |(`\ |___
                     if (timeBetweenKeyStrokes > 0)
                     {
                         textClickSound.Play();
+                        Thread.Sleep(timeBetweenKeyStrokes);
                     }
-                    Thread.Sleep(timeBetweenKeyStrokes);
+                    
                 }
             }
             else
             {
                 Console.WriteLine("Out of limits");
+            }
+        }
+        public static void DrawTextCentered(int x, int y, int timeBetweenKeyStrokes, string text)
+        {
+            Console.CursorVisible = false;
+            if (y >= 0 && y < Console.WindowHeight) // Validar solo 'y'
+            {
+                x = (Console.WindowWidth - text.Length) / 2; // Calcular x para centrar el texto
+                if (x >= 0 && x + text.Length <= Console.WindowWidth)
+                {
+                    Console.SetCursorPosition(x, y);
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        Console.Write(text[i]);
+
+                        if (timeBetweenKeyStrokes > 0)
+                        {
+                            textClickSound.Play();
+                        }
+                        Thread.Sleep(timeBetweenKeyStrokes);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Text is too long to fit in the console");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Out of vertical limits");
             }
         }
 
@@ -981,6 +1087,7 @@ _N\ |(`\ |___
             Thread.Sleep(500);
 
             int selectedOption = SelectMainMenu(menuOptions);
+            Console.Clear();
             return selectedOption;
         }
         public static void DrawRectangle(int x, int y, int width, int height, char character)
@@ -1017,7 +1124,7 @@ _N\ |(`\ |___
             return maxWidth;
         }
 
-        public static void DrawEnemy(int x, int y, string enemy)
+        public static void DrawArt(int x, int y, string enemy)
         {
             int enemyWidth = GetDrawingWidth(enemy);
             int startX = x - (enemyWidth / 2);
@@ -1037,12 +1144,14 @@ _N\ |(`\ |___
                 }
             }
         }
-
+        
+        
+        // Intro
         public static void DrawArcade()
         {
             for (int i = 0; i < arcadeFrames.Length; i++)
             {
-                DrawEnemy((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 20, arcadeFrames[i]);
+                DrawArt((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 20, arcadeFrames[i]);
                 Thread.Sleep(100);
                 if (i < arcadeFrames.Length - 1)
                 {
@@ -1050,7 +1159,6 @@ _N\ |(`\ |___
                 }
             }
         }
-
         public static void EnterTheKingdomAnimation()
         {
             beepBoopSound.Play();
@@ -1082,31 +1190,31 @@ _N\ |(`\ |___
             DrawTransition1();
             Console.Clear();
         }
-        public static string IntroScene()
+        public static void IntroScene(string playerName)
         {
             Arkanoid();
             Console.Clear();
-            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Buff, me aburre jugar siempre a los mismos juegos.");
+            DrawTextCentered((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Buff, me aburre jugar siempre a los mismos juegos.");
             Thread.Sleep(2000);
             Console.Clear();
-            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "El dueño de los recreativos podría invertir un poco en máquinas nuevas.");
+            DrawTextCentered((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "El dueño de los recreativos podría invertir un poco en máquinas nuevas.");
             title1LowVolumeSound.Play();
             Thread.Sleep(2000);
             Console.Clear();
-            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Un momento... ¿qué es eso que suena?");
+            DrawTextCentered((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Un momento... ¿qué es eso que suena?");
             title1Sound.Play();
             Thread.Sleep(3000);
             Console.Clear();
-            DrawText((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Viene de esa máquina... ¡No la había visto antes!");
+            DrawTextCentered((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2), 50, "Viene de esa máquina... ¡No la había visto antes!");
             Thread.Sleep(3000);
             Console.Clear();
             title1Sound.Play();
             DrawArcade();
             Thread.Sleep(5000);
-            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "CSHARP KINGDOM... tiene buena pinta...");
+            DrawTextCentered((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "CSHARP KINGDOM... tiene buena pinta...");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
-            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Me queda solo un duro... más vale que merezca la pena.");
+            DrawTextCentered((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Me queda solo un duro... más vale que merezca la pena.");
             Thread.Sleep(2000);
             insertCoinSound.Play();
             Thread.Sleep(3000);
@@ -1115,27 +1223,84 @@ _N\ |(`\ |___
             Thread.Sleep(2000);
             powerOutSound.Play();
             Thread.Sleep(4000);
-            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "¿Q- q- qué ha pasado? Se ha ido la luz...");
+            DrawTextCentered((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "¿Q- q- qué ha pasado? Se ha ido la luz...");
             Thread.Sleep(2000);
             switchSound.Play();
-            DrawEnemy((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 20, arcadeFrames[arcadeFrames.Length - 1]);
+            DrawArt((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 20, arcadeFrames[arcadeFrames.Length - 1]);
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
-            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Oh vaya... volvió.");
+            DrawTextCentered((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Oh vaya... volvió.");
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
-            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Bueno... CSHARP KINGDOM, prepárate.");
+            DrawTextCentered((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "Bueno... CSHARP KINGDOM, prepárate.");
             Thread.Sleep(2000);
             thunderSound.Play();
             Thread.Sleep(2000);
             EraseText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 0, 50, 1);
-            DrawText((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "¿Otra vez? Oh... oh... ¡OHH!");
+            DrawTextCentered((Console.WindowWidth / 2) - 30, (Console.WindowHeight / 2) + 10, 50, "¿Otra vez? Oh... oh... ¡OHH!");
             Thread.Sleep(1000);
             Console.Clear();
             EnterTheKingdomAnimation();
-            string playerName = Console.ReadLine();
-            return playerName;
+            Thread.Sleep(2000);
         }
+        public static void ShowInstructions()
+        {
+            string instructions = @"
+    En CSHARP KINGDOM deberás luchar contra monstruos
+y resolver puzzles y acertijos para obtener La Llave del
+                        Éxito.
+   ¿Qué misterios y peligros albergará El Reino de C#?
+              Es tu misión descubrirlo.
+";
+            DrawTextLines(Console.WindowWidth / 2, Console.WindowHeight / 2, 10, instructions);
+            Console.ReadLine();
+            Console.Clear();
+        }
+
+        public static void WizardScene(string playerName)
+        {
+            DrawArt((Console.WindowWidth / 2), (Console.WindowHeight / 2) - 20, FRIENDLY_WIZARD);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Hola, {playerName}.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawArt((Console.WindowWidth / 2), (Console.WindowHeight / 2) - 20, FRIENDLY_WIZARD);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¿Que cómo sé tu nombre? Ja ja ja... ¡Soy un mago! ¿No lo ves?");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"No te asustes. Entiendo que todo esto sea muy nuevo para ti.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Estás dentro de CSHARP KINGDOM.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Te esperan peligros y desafíos a los que no te has enfrentado nunca.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Nuestro reino está en apuros. Solo tú puedes ayudarnos a derrotar al tirano Rey Demonio.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"Deberás conseguir las tres reliquias para poder enfrentarte al Rey Demonio y así conseguir La Llave del Éxito.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¿Que por qué tú? Porque solo tú has sido capaz de escuchar nuestra llamada.");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¡Eso significa que eres la persona indicada!");
+            Thread.Sleep(2000);
+            EraseText((Console.WindowWidth / 2) - 80, (Console.WindowHeight / 2) + 10, 0, 150, 1);
+            DrawTextCentered((Console.WindowWidth / 2), (Console.WindowHeight / 2) + 10, 25, $"¡Ahora adelante! ¡Ve y consigue La Llave del Éxito!");
+            Thread.Sleep(2000);
+            Console.Clear();
+            DrawTransition1();
+        }
+
+        // Explore
+        public static int SelectStage()
+        {
+            return 3;
+        }
+
+
 
         // Battle
         public static void PlayerTurn(int playerChoice, int[] playerInventory, Random generator, ref int computerHealth, ref int playerHealth, ref int playerMana, string[] enemy, string playerName)
@@ -1354,7 +1519,7 @@ _N\ |(`\ |___
             string enemyDrawing = enemy[0];
             string enemyName = enemy[1];
             DisplayHealth(playerHealth, computerHealth, playerName, enemyName);
-            DrawEnemy(Console.WindowWidth / 2, (Console.WindowHeight / 2) - 15, enemyDrawing);
+            DrawArt(Console.WindowWidth / 2, (Console.WindowHeight / 2) - 15, enemyDrawing);
             DrawText(15, 5, 0, enemyName);
             DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[2]);
 
@@ -1393,14 +1558,15 @@ _N\ |(`\ |___
 
                 if (win || defeat)
                 {
+                    EraseText(50, 40, 0, 65, 1);
                     if (win)
                     {
-                        EraseText(50, 40, 0, 65, 1);
+                        
                         DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[5]);//Display enemy defeat message
                     }
                     else
                     {
-                        EraseText(50, 40, 0, 65, 1);
+                        
                         DrawText((Console.WindowWidth / 2) + 10, (Console.WindowHeight / 2) - 10, 10, enemy[6]);//Display enemy victory message
                     }
                     BattleEndMessage($"Enhorabuena! ¡Has derrotado a {enemyName}!", $"¡Fin del juego! ¡{enemyName} te ha derrotado!", win);
@@ -1436,31 +1602,37 @@ _N\ |(`\ |___
             int[] playerInventory = new int[5];
             playerInventory[0] = 2; // Health potions
             playerInventory[1] = 2; // Mana potions
+            playerInventory[2] = 0; // First relic
+            playerInventory[3] = 0; // Second relic
+            playerInventory[4] = 0; // Third relic
 
-            string playerName;
+            string playerName = Environment.UserName.Substring(0, 1).ToUpper() + Environment.UserName.Substring(1);
 
             int computerHealth = 100;
             Random generator = new Random();
 
-            playerName = IntroScene();
-            int selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
-            //UI
-            DrawUI();
+            IntroScene(playerName);
 
+            WizardScene(playerName);
+            
+            int selectedOption = -1;
             //Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, dogEnemy);
-
-            switch (selectedOption)
-            {
-                case 0:
-                    Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, dogEnemy);
-                    break;
-                case 1:
-                    //ShowInstructions();
-                    break;
-                case 2:
-                    break;
-            }
+            //do
+            //{
+            //    selectedOption = DrawMainMenu(mainMenuOptions, TITLE);
+            //    switch (selectedOption)
+            //    {
+            //        case 0:
+            //            DrawUI();
+            //            Battle(generator, ref playerHealth, ref playerMana, ref computerHealth, playerInventory, playerBattleOptions, playerName, knightEnemy);
+            //            break;
+            //        case 1:
+            //            ShowInstructions();
+            //            break;
+            //        case 2:
+            //            break;
+            //    }
+            //} while (selectedOption != 0 || selectedOption == 2);
         }
     }
-
 }
